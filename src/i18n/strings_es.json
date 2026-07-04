@@ -6,42 +6,169 @@
     "wavePlates": "Láminas de Onda",
     "lab": "Laboratorio"
   },
+  "controls": {
+    "wave1": "Onda 1",
+    "wave2": "Onda 2",
+    "polarization": {
+      "vertical": "Vertical",
+      "horizontal": "Horizontal",
+      "leftCircular": "Circular izquierda",
+      "rightCircular": "Circular derecha"
+    },
+    "amplitude": "Amplitud",
+    "wavelength": "Longitud de onda",
+    "phaseDifference": "Diferencia de fase",
+    "reverseDirection": "Invertir dirección",
+    "sum": "Mostrar suma",
+    "material": {
+      "title": "Material",
+      "polarizerTitle": "Polarizador (filtro dicroico)",
+      "wavePlateTitle": "Lámina de onda (placa birrefringente)",
+      "insert": "Insertar material",
+      "length": "Longitud",
+      "refractiveIndex": "Índice de refracción n",
+      "extinction": "Coeficiente de extinción κ",
+      "sameAsWave1": "Igual que la onda 1"
+    },
+    "display": {
+      "title": "Visualización",
+      "electricFieldVectors": "Vectores del campo E",
+      "magneticField": "Campo magnético",
+      "componentCurves": "Curvas de las ondas",
+      "sumCurve": "Curva de la suma"
+    },
+    "views": {
+      "title": "Vista",
+      "nice": "Oblicua",
+      "side": "Lateral",
+      "front": "Frontal",
+      "back": "Trasera",
+      "parallelProjection": "Proyección paralela"
+    },
+    "degreesPattern": "{{value}}°",
+    "copyLink": "Copiar enlace",
+    "linkCopied": "¡Enlace copiado!",
+    "webglWarning": "Los gráficos 3D no están disponibles en este dispositivo o navegador; no se puede mostrar la vista de la onda.",
+    "contextLossWarning": "Lo sentimos, ocurrió un error gráfico. Recarga la página para continuar.",
+    "reload": "Recargar"
+  },
+  "presets": {
+    "title": "Muéstrame",
+    "custom": "Personalizado",
+    "categoryPattern": "{{category}}: {{preset}}",
+    "categories": {
+      "singleWaves": "Ondas simples",
+      "superposition": "Superposición",
+      "interference": "Interferencia",
+      "material": "Material",
+      "linearAnisotropy": "Anisotropía lineal",
+      "circularAnisotropy": "Anisotropía circular"
+    },
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "leftCircular": "Circular izquierda",
+    "rightCircular": "Circular derecha",
+    "linearPlusLinear1": "Lineal + lineal, en fase",
+    "linearPlusLinear2": "Lineal + lineal, desfasadas 90°",
+    "leftPlusRightCircular": "Circular izquierda + derecha",
+    "wavelengthRatio1to1": "Razón de longitudes de onda 1:1",
+    "wavelengthRatio1to8": "Razón de longitudes de onda 1:8",
+    "wavelengthRatio7to8": "Razón de longitudes de onda 7:8",
+    "standingWave": "Onda estacionaria",
+    "absorption": "Absorción",
+    "refraction": "Refracción",
+    "absorptionRefraction": "Absorción + refracción",
+    "linearDichroism": "Dicroísmo lineal (polarizador)",
+    "linearBirefringence": "Birrefringencia lineal (lámina de onda)",
+    "linearDichroismBirefringence": "Dicroísmo + birrefringencia lineales",
+    "circularDichroism": "Dicroísmo circular",
+    "circularBirefringence": "Birrefringencia circular (rotación óptica)",
+    "circularDichroismBirefringence": "Dicroísmo + birrefringencia circulares"
+  },
+  "wavePlatesControls": {
+    "quarterWave": "Lámina de cuarto de onda",
+    "halfWave": "Lámina de media onda",
+    "retardationPattern": "Retardo: {{degrees}}° = {{waves}} λ",
+    "fastAxis": "Eje rápido",
+    "slowAxis": "Eje lento",
+    "fastAxisPattern": "Eje rápido: {{axis}}"
+  },
+  "keyboardHelp": {
+    "rotateViewTitle": "Rotar la vista 3D",
+    "rotateView": "Rotar la vista",
+    "zoomView": "Acercar o alejar"
+  },
   "a11y": {
+    "common": {
+      "cameraPresets": {
+        "nice": "Vista oblicua (perspectiva de tres cuartos)",
+        "side": "Vista lateral",
+        "front": "Vista frontal",
+        "back": "Vista trasera"
+      },
+      "polarizationDescription": {
+        "vertical": "de polarización vertical",
+        "horizontal": "de polarización horizontal",
+        "leftCircular": "de polarización circular izquierda",
+        "rightCircular": "de polarización circular derecha"
+      },
+      "motionPlaying": "en animación",
+      "motionPaused": "en pausa"
+    },
     "intro": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
+        "playArea": "Una vista tridimensional de una onda electromagnética que viaja a lo largo de un eje horizontal, mostrada como la curva animada de su campo eléctrico con flechas de campo en ambos extremos.",
+        "controlArea": "Los controles ajustan la polarización, la amplitud y la longitud de onda de la onda. Los botones de vista cambian el ángulo de la cámara, un control de tiempo reproduce, pausa o avanza la animación, y un botón Restablecer todo restaura el estado inicial.",
+        "interactionHint": "Cambia la polarización, la amplitud o la longitud de onda de la onda, o gira la vista 3D."
       },
-      "currentDetails": "La simulación está en su estado inicial."
+      "currentDetailsPattern": "Una onda {{polarization}}, con amplitud {{amplitude}} de 10 y número de longitud de onda {{wavelength}} de 8, está {{motionState}}.",
+      "waveView": {
+        "accessibleName": "Vista 3D de la onda",
+        "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
+      }
     },
     "polarization": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
+        "playArea": "Una vista tridimensional de dos ondas electromagnéticas que viajan a lo largo de un eje horizontal compartido, mostradas como curvas animadas de sus campos eléctricos, junto con una curva de superposición opcional y un filtro polarizador opcional centrado en el eje.",
+        "controlArea": "Los controles fijan la polarización y la amplitud de cada onda, la longitud de onda compartida y la diferencia de fase entre las ondas. Una sección de polarizador inserta un filtro dicroico y fija cuánto absorbe cada onda. Los botones de vista cambian el ángulo de la cámara, un control de tiempo reproduce, pausa o avanza la animación, y un botón Restablecer todo restaura el estado inicial.",
+        "interactionHint": "Cambia la polarización o la amplitud de una onda, muestra la suma de las dos ondas o inserta el polarizador."
       },
-      "currentDetails": "La simulación está en su estado inicial."
+      "currentDetailsPattern": "La onda 1 es {{polarization1}} con amplitud {{amplitude1}} de 10, y la onda 2 es {{polarization2}} con amplitud {{amplitude2}} de 10; la diferencia de fase es de {{phase}} grados. El polarizador está {{polarizerState}}. La animación está {{motionState}}.",
+      "polarizerInserted": "insertado",
+      "polarizerRemoved": "retirado",
+      "waveView": {
+        "accessibleName": "Vista 3D de las ondas",
+        "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
+      }
     },
     "wavePlates": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
+        "playArea": "Una vista tridimensional de las componentes vertical y horizontal de una onda de luz que viaja a lo largo de un eje horizontal, su superposición, y una lámina de onda birrefringente centrada en el eje que retrasa una componente respecto a la otra.",
+        "controlArea": "Los controles fijan la amplitud de cada componente, la diferencia de fase, y la longitud y los índices de refracción por componente de la lámina de onda. Los botones de cuarto de onda y media onda configuran la lámina con exactitud, y un indicador muestra el retardo resultante. Los botones de vista cambian el ángulo de la cámara, un control de tiempo reproduce, pausa o avanza la animación, y un botón Restablecer todo restaura el estado inicial.",
+        "interactionHint": "Pulsa el botón de lámina de cuarto de onda o de media onda, o ajusta los índices de refracción, y observa cómo cambia la polarización de la suma saliente."
       },
-      "currentDetails": "La simulación está en su estado inicial."
+      "currentDetailsPattern": "La componente vertical tiene amplitud {{amplitude1}} de 10 y la componente horizontal tiene amplitud {{amplitude2}} de 10; la diferencia de fase es de {{phase}} grados. La lámina de onda está {{plateState}} con un retardo de {{retardation}} grados. La animación está {{motionState}}.",
+      "plateInserted": "insertada",
+      "plateRemoved": "retirada",
+      "waveView": {
+        "accessibleName": "Vista 3D de las ondas",
+        "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
+      }
     },
     "lab": {
       "screenSummary": {
-        "playArea": "El área de juego muestra el contenido principal de la simulación.",
-        "controlArea": "El área de control tiene un botón Restablecer todo que devuelve la simulación a su estado inicial.",
-        "interactionHint": "Explora la simulación interactuando con sus controles."
+        "playArea": "Una vista tridimensional de hasta dos ondas electromagnéticas que viajan a lo largo de un eje horizontal, su superposición, y una placa de material opcional cuyo índice de refracción y coeficiente de extinción para cada onda producen absorción, refracción, dicroísmo, birrefringencia y actividad óptica.",
+        "controlArea": "Un menú de preajustes ofrece veinte fenómenos preparados. Los controles fijan la polarización, la amplitud, la longitud de onda, la fase y la dirección de cada onda, y la longitud y las constantes ópticas por onda del material. Las casillas de visualización alternan las curvas, los vectores de campo y el campo magnético. Los botones de vista cambian el ángulo de la cámara, un control de tiempo reproduce, pausa o avanza la animación, y un botón Restablecer todo restaura el estado inicial.",
+        "interactionHint": "Elige un preajuste del menú Muéstrame, o crea tu propia configuración con los controles de onda y material."
       },
-      "currentDetails": "La simulación está en su estado inicial."
+      "currentDetailsPattern": "Onda 1: {{wave1State}}; onda 2: {{wave2State}}. El material está {{materialState}}. La animación está {{motionState}}.",
+      "waveOff": "apagada",
+      "materialInserted": "insertado",
+      "materialRemoved": "retirado",
+      "waveView": {
+        "accessibleName": "Vista 3D de las ondas",
+        "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
+      }
     }
-  },
-  "preferences": {
-    "title": "Simulación",
-    "exampleToggle": "Ejemplo de alternancia"
   }
 }

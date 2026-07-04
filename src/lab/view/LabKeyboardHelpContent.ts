@@ -2,15 +2,14 @@
  * LabKeyboardHelpContent.ts
  *
  * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. Add a slider or
- * combo-box section here as the simulation grows.
+ * The Lab adds a presets combo box on top of the shared slider / 3D-view /
+ * time-control interactions.
  */
 
-import { BasicActionsKeyboardHelpSection, TwoColumnKeyboardHelpContent } from "scenerystack/scenery-phet";
+import { WaveKeyboardHelpContent } from "../../common/view/WaveKeyboardHelpContent.js";
 
-export class LabKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
+export class LabKeyboardHelpContent extends WaveKeyboardHelpContent {
   public constructor() {
-    super([new BasicActionsKeyboardHelpSection()], []);
+    super({ includeComboBox: true });
   }
 }

@@ -1,122 +1,146 @@
 /**
  * PolarizationScreenView.ts
  *
- * The top-level view for the simulation screen.
+ * The Polarization screen: two always-on waves in the 3D view with per-wave
+ * polarization and amplitude, a shared wavelength, wave 2's phase difference,
+ * a sum checkbox, and a κ-only material presented as a polarizer (dichroic
+ * filter). Builds on WaveScreenView, which owns the 3D viewport, time
+ * control, Reset All and layout plumbing.
  *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. PolarizationControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * The panels form two columns along the right edge: waves on the left column,
+ * shared wave settings / polarizer / view on the right.
  */
 
-import { Node, Rectangle, Text } from "scenerystack/scenery";
-import { ResetAllButton } from "scenerystack/scenery-phet";
+import { Vector2 } from "scenerystack/dot";
+import { HBox, Text, VBox } from "scenerystack/scenery";
+import { NumberControl } from "scenerystack/scenery-phet";
 import type { ScreenViewOptions } from "scenerystack/sim";
-import { ScreenView } from "scenerystack/sim";
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/LightPropagationButtonOptions.js";
+import { LightPropagationPanel } from "../../common/LightPropagationPanel.js";
+import { CONTROL_TEXT_OPTIONS, SIM_NUMBER_CONTROL_OPTIONS } from "../../common/view/LightPropagationControlOptions.js";
+import { MaterialControlNode } from "../../common/view/MaterialControlNode.js";
+import { ThemedCheckbox } from "../../common/view/ThemedCheckbox.js";
+import { ViewControlNode } from "../../common/view/ViewControlNode.js";
+import { WaveControlNode } from "../../common/view/WaveControlNode.js";
+import { WaveScreenView } from "../../common/view/WaveScreenView.js";
+import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
+import { SCREEN_VIEW_MARGIN, WAVELENGTH_NUMBER_RANGE } from "../../LightPropagationConstants.js";
 import type { PolarizationModel } from "../model/PolarizationModel.js";
 import { PolarizationScreenSummaryContent } from "./PolarizationScreenSummaryContent.js";
 
-export class PolarizationScreenView extends ScreenView {
+export class PolarizationScreenView extends WaveScreenView {
   public constructor(model: PolarizationModel, options?: ScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See PolarizationScreenSummaryContent for the four content regions.
-    super({
+    const strings = StringManager.getInstance();
+    const a11y = strings.getPolarizationA11yStrings();
+    const common = strings.getCommonA11yStrings();
+    const controls = strings.getControlsStrings();
+
+    super(model, {
       screenSummaryContent: new PolarizationScreenSummaryContent(model),
+      waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
+      waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
+      // The two-column panel stack is wider than Intro's, so push the 3D scene further left.
+      viewOffset: new Vector2(-170, 0),
       ...options,
     });
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: LightPropagationColors.backgroundColorProperty,
+    const scene = model.scene;
+
+    const wave1Control = new WaveControlNode(scene.wave1, {
+      titleStringProperty: controls.wave1StringProperty,
+      titleColorProperty: LightPropagationColors.wave1ColorProperty,
+      showWavelength: false,
+      accessibleNames: {},
     });
-    this.addChild(backgroundRect);
 
-    // ── Placeholder label ─────────────────────────────────────────────────────
-    // Replace this with your actual simulation content.
-    const placeholderText = new Text("Polarization", {
-      font: "bold 36px sans-serif",
-      fill: LightPropagationColors.textColorProperty,
-      center: this.layoutBounds.center,
+    const wave2Control = new WaveControlNode(scene.wave2, {
+      titleStringProperty: controls.wave2StringProperty,
+      titleColorProperty: LightPropagationColors.wave2ColorProperty,
+      showWavelength: false,
+      showPhase: true,
+      accessibleNames: {},
     });
-    this.addChild(placeholderText);
 
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control):
-    //
-    //   const a11y = StringManager.getInstance().getPolarizationA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
-    //   });
-    //   this.addChild(exampleButton);
-
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
-    const resetAllButton = new ResetAllButton({
-      ...FLAT_RESET_ALL_BUTTON_OPTIONS,
-      listener: () => {
-        model.reset();
-        this.reset();
+    // Both waves share one wavelength; the model keeps wave 2 in sync.
+    const wavelengthControl = new NumberControl(
+      controls.wavelengthStringProperty,
+      scene.wave1.wavelengthNumberProperty,
+      WAVELENGTH_NUMBER_RANGE,
+      {
+        ...SIM_NUMBER_CONTROL_OPTIONS,
+        delta: 1,
+        sliderOptions: {
+          ...SIM_NUMBER_CONTROL_OPTIONS.sliderOptions,
+          constrainValue: (value: number) => Math.round(value),
+        },
+        accessibleName: controls.wavelengthStringProperty,
       },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
-    });
-    this.addChild(resetAllButton);
-
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
-    this.addChild(
-      new Node({
-        pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
-          resetAllButton,
-        ],
-      }),
     );
-  }
 
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
-  }
+    const sumCheckbox = new ThemedCheckbox(
+      scene.sumEnabledProperty,
+      new Text(controls.sumStringProperty, CONTROL_TEXT_OPTIONS),
+      { accessibleName: controls.sumStringProperty },
+    );
 
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
+    const sharedWaveControl = new VBox({
+      children: [wavelengthControl, sumCheckbox],
+      spacing: 8,
+      align: "left",
+    });
+
+    const materialControl = new MaterialControlNode(scene.material, {
+      titleStringProperty: controls.material.polarizerTitleStringProperty,
+      showRefractiveIndex: false,
+    });
+
+    const viewControl = new ViewControlNode(scene, this.camera, {
+      showBFieldCheckbox: false,
+      showCurveCheckboxes: false,
+      accessibleNames: {
+        presets: {
+          nice: common.cameraPresets.niceStringProperty,
+          side: common.cameraPresets.sideStringProperty,
+          front: common.cameraPresets.frontStringProperty,
+          back: common.cameraPresets.backStringProperty,
+        },
+      },
+    });
+
+    const waveColumn = new VBox({
+      children: [new LightPropagationPanel(wave1Control), new LightPropagationPanel(wave2Control)],
+      spacing: 10,
+      align: "left",
+    });
+    const settingsColumn = new VBox({
+      children: [
+        new LightPropagationPanel(sharedWaveControl),
+        new LightPropagationPanel(materialControl),
+        new LightPropagationPanel(viewControl),
+      ],
+      spacing: 10,
+      align: "left",
+    });
+
+    const panelColumns = new HBox({
+      children: [waveColumn, settingsColumn],
+      spacing: 10,
+      align: "top",
+      // Scales the whole control surface down if a locale's strings make it
+      // taller than the screen.
+      maxHeight: this.layoutBounds.height - 2 * SCREEN_VIEW_MARGIN,
+      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
+      top: this.layoutBounds.minY + SCREEN_VIEW_MARGIN,
+    });
+    this.addChild(panelColumns);
+
+    this.setScreenPdomOrder([
+      ...wave1Control.interactiveNodes,
+      ...wave2Control.interactiveNodes,
+      wavelengthControl,
+      sumCheckbox,
+      ...materialControl.interactiveNodes,
+      ...viewControl.interactiveNodes,
+    ]);
   }
 }

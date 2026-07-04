@@ -85,6 +85,29 @@ export class StringManager {
   }
 
   /**
+   * Shared control-panel labels (waves, polarization, material, display,
+   * camera views) used by every screen.
+   */
+  public getControlsStrings() {
+    return stringProperties.controls;
+  }
+
+  /** Preset-menu strings: title, "Custom", category names and the 20 preset labels. */
+  public getPresetsStrings() {
+    return stringProperties.presets;
+  }
+
+  /** Wave Plates screen extras: QWP/HWP buttons, retardation readout, axis labels. */
+  public getWavePlatesControlsStrings() {
+    return stringProperties.wavePlatesControls;
+  }
+
+  /** Strings for the custom "Rotate 3D View" keyboard-help section. */
+  public getKeyboardHelpStrings() {
+    return stringProperties.keyboardHelp;
+  }
+
+  /**
    * Accessibility (Interactive Description) StringProperties, one method per
    * screen. Each returns a reactive `a11y` subtree used by the parallel DOM:
    *   - `screenSummary.*` — play-area / control-area overview and an interaction
@@ -96,6 +119,11 @@ export class StringManager {
    * Add `accessibleName` / `accessibleHelpText` strings for individual controls
    * to the same per-screen group, then read them through this nested tree.
    */
+  /** Screen-independent a11y strings: camera-preset names, polarization phrases, motion states. */
+  public getCommonA11yStrings() {
+    return stringProperties.a11y.common;
+  }
+
   public getIntroA11yStrings() {
     return stringProperties.a11y.intro;
   }
@@ -110,12 +138,5 @@ export class StringManager {
 
   public getLabA11yStrings() {
     return stringProperties.a11y.lab;
-  }
-
-  /**
-   * Simulation-specific preference labels shown in Preferences → Simulation.
-   */
-  public getPreferences() {
-    return stringProperties.preferences;
   }
 }

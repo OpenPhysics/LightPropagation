@@ -94,6 +94,65 @@ const LightPropagationColors = {
     default: "#1a1a1a",
     projector: "#1a1a1a",
   }),
+
+  // ── 3D wave scene ────────────────────────────────────────────────────────────
+  // Colors for the electric-field curves, magnetic-field curves, material slab
+  // and scene furniture in the three.js viewport. Each is linked into a three.js
+  // material, so default/projector switching restyles the 3D scene too.
+
+  /** Electric field of wave 1 (curve + end arrows). */
+  wave1ColorProperty: new ProfileColorProperty(LightPropagationNamespace, "wave1", {
+    default: "#ff4444",
+    projector: "#cc0000",
+  }),
+
+  /** Electric field of wave 2 (curve + end arrows). */
+  wave2ColorProperty: new ProfileColorProperty(LightPropagationNamespace, "wave2", {
+    default: "#44dd44",
+    projector: "#008800",
+  }),
+
+  /** Electric field of the superposition (sum) of both waves. */
+  superpositionColorProperty: new ProfileColorProperty(LightPropagationNamespace, "superposition", {
+    default: "#00ffff",
+    projector: "#008080",
+  }),
+
+  /** Magnetic field of wave 1 (violet family, dimmer than the E-field colors). */
+  bField1ColorProperty: new ProfileColorProperty(LightPropagationNamespace, "bField1", {
+    default: "#8855dd",
+    projector: "#6633aa",
+  }),
+
+  /** Magnetic field of wave 2. */
+  bField2ColorProperty: new ProfileColorProperty(LightPropagationNamespace, "bField2", {
+    default: "#bb66dd",
+    projector: "#993399",
+  }),
+
+  /** Magnetic field of the superposition. */
+  bFieldSumColorProperty: new ProfileColorProperty(LightPropagationNamespace, "bFieldSum", {
+    default: "#dd99ff",
+    projector: "#aa55cc",
+  }),
+
+  /** Material slab wirebox and translucent fill. */
+  materialColorProperty: new ProfileColorProperty(LightPropagationNamespace, "material", {
+    default: "#ff8000",
+    projector: "#b35900",
+  }),
+
+  /** Propagation axis, transverse frames, and crosshairs in the 3D scene. */
+  axes3DColorProperty: new ProfileColorProperty(LightPropagationNamespace, "axes3D", {
+    default: "#4c4c4c",
+    projector: "#aaaaaa",
+  }),
+
+  /** Construction lines connecting component E-vector tips to the sum vector tip. */
+  constructionLineColorProperty: new ProfileColorProperty(LightPropagationNamespace, "constructionLine", {
+    default: "#ffff00",
+    projector: "#999900",
+  }),
 };
 
 export default LightPropagationColors;

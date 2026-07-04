@@ -1,43 +1,47 @@
 /**
  * PolarizationModel.ts
  *
- * The top-level model for the simulation screen.
+ * Model for the Polarization screen: two always-on waves whose superposition
+ * passes through an optional dichroic filter (polarizer) — a material with
+ * per-wave extinction only (n stays 1.00, so there is no refraction or
+ * birefringence on this screen).
  *
- * Add your simulation's state here using reactive Property objects from
- * scenerystack/axon. The view observes these properties and updates automatically.
+ * The initial state is EMANIM's "Linear + linear, in phase" preset: wave 1
+ * vertical + wave 2 horizontal, equal amplitudes, δ = 0, sum shown.
  *
- * ── Example ──────────────────────────────────────────────────────────────────
- *   import { BooleanProperty, NumberProperty } from "scenerystack/axon";
- *
- *   public readonly isRunningProperty = new BooleanProperty(false);
- *   public readonly timeProperty = new NumberProperty(0);    // seconds
- *
- * ── Step cycle ────────────────────────────────────────────────────────────────
- * The Sim calls step(dt) on every animation frame. Advance your model state
- * in that method (e.g. integrate equations, update positions).
- *
- * ── Reset ─────────────────────────────────────────────────────────────────────
- * reset() is called when the user presses Reset All. Call .reset() on every
- * Property declared here.
+ * Both waves share one wavelength control: wave 1's wavelength number is the
+ * source of truth and wave 2 tracks it (unequal wavelengths are Lab-only).
  */
 import type { TModel } from "scenerystack/joist";
+import { WaveSceneModel } from "../../common/model/WaveSceneModel.js";
 
 export class PolarizationModel implements TModel {
+  public readonly scene = new WaveSceneModel({
+    wave1: { enabled: true, polarization: "vertical" },
+    wave2: { enabled: true, polarization: "horizontal" },
+    sumEnabled: true,
+  });
+
+  public constructor() {
+    // One shared wavelength control drives both waves.
+    this.scene.wave1.wavelengthNumberProperty.link((wavelengthNumber) => {
+      this.scene.wave2.wavelengthNumberProperty.value = wavelengthNumber;
+    });
+  }
+
   /**
    * Resets all model state to initial values.
    * Called when the user presses the Reset All button.
    */
   public reset(): void {
-    // TODO: call .reset() on every Property declared in this model
+    this.scene.reset();
   }
 
   /**
    * Steps the model forward by dt seconds.
-   * Called every animation frame by the Sim framework.
-   *
-   * @param _dt - elapsed time in seconds since the last frame
+   * @param dt - elapsed time in seconds since the last frame
    */
-  public step(_dt: number): void {
-    // TODO: advance simulation state here
+  public step(dt: number): void {
+    this.scene.step(dt);
   }
 }

@@ -1,122 +1,170 @@
 /**
  * LabScreenView.ts
  *
- * The top-level view for the simulation screen.
- *
- * All visual nodes are added here. Follow these conventions:
- *   - Use this.layoutBounds for positioning (never magic pixel values)
- *   - Keep a ResetAllButton that calls model.reset() and this.reset()
- *   - Override step(dt) for frame-by-frame animation
- *
- * ── Adding content ────────────────────────────────────────────────────────────
- * 1. Create Node subclasses in separate files (e.g. LabControlPanel.ts)
- * 2. Instantiate them here and call this.addChild(...)
- * 3. Link them to model properties:
- *      model.isRunningProperty.link( isRunning => { ... } );
- *
- * ── Layout bounds ─────────────────────────────────────────────────────────────
- * SceneryStack uses a virtual 1024×618 coordinate space by default.
- * this.layoutBounds gives you the full rectangle; use it for alignment:
- *   center, minX, maxX, minY, maxY, width, height
+ * The Lab screen: full EMANIM parity. A "Show me" preset menu over 20
+ * phenomena, complete per-wave controls (enable, polarization, amplitude,
+ * independent wavelength, phase, reverse direction), the full material
+ * (n and κ per wave plus "same as wave 1"), and every display toggle
+ * including the magnetic field. Builds on WaveScreenView, which owns the 3D
+ * viewport, time control, Reset All and layout plumbing.
  */
 
-import { Node, Rectangle, Text } from "scenerystack/scenery";
-import { ResetAllButton } from "scenerystack/scenery-phet";
+import { BooleanProperty, stepTimer } from "scenerystack/axon";
+import { Vector2 } from "scenerystack/dot";
+import { HBox, Text, VBox } from "scenerystack/scenery";
 import type { ScreenViewOptions } from "scenerystack/sim";
-import { ScreenView } from "scenerystack/sim";
-import { FLAT_RESET_ALL_BUTTON_OPTIONS } from "../../common/LightPropagationButtonOptions.js";
+import { RectangularPushButton } from "scenerystack/sun";
+import {
+  FLAT_RECTANGULAR_BUTTON_OPTIONS,
+  LIGHT_SURFACE_TEXT_FILL,
+} from "../../common/LightPropagationButtonOptions.js";
+import { LightPropagationPanel } from "../../common/LightPropagationPanel.js";
+import {
+  CONTROL_FONT,
+  CONTROL_TEXT_OPTIONS,
+  CONTROL_TITLE_OPTIONS,
+} from "../../common/view/LightPropagationControlOptions.js";
+import { MaterialControlNode } from "../../common/view/MaterialControlNode.js";
+import { booleanPhraseProperty } from "../../common/view/summaryPhrases.js";
+import { ThemedCheckbox } from "../../common/view/ThemedCheckbox.js";
+import { ViewControlNode } from "../../common/view/ViewControlNode.js";
+import { WaveControlNode } from "../../common/view/WaveControlNode.js";
+import { WaveScreenView } from "../../common/view/WaveScreenView.js";
+import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
 import type { LabModel } from "../model/LabModel.js";
+import { queryStringFromState } from "../model/labQueryParameterMapping.js";
+import { LabPresetComboBox } from "./LabPresetComboBox.js";
 import { LabScreenSummaryContent } from "./LabScreenSummaryContent.js";
 
-export class LabScreenView extends ScreenView {
+export class LabScreenView extends WaveScreenView {
   public constructor(model: LabModel, options?: ScreenViewOptions) {
-    // ── Accessibility: screen summary ───────────────────────────────────────────
-    // The screen summary is the first thing a screen-reader user encounters. It
-    // is registered here, in the ScreenView's super() options, so every sim wires
-    // it the same way. See LabScreenSummaryContent for the four content regions.
-    super({
+    const strings = StringManager.getInstance();
+    const a11y = strings.getLabA11yStrings();
+    const common = strings.getCommonA11yStrings();
+    const controls = strings.getControlsStrings();
+    const presets = strings.getPresetsStrings();
+
+    super(model, {
       screenSummaryContent: new LabScreenSummaryContent(model),
+      waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
+      waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
+      // The two-column panel stack is wider than Intro's, so push the 3D scene further left.
+      viewOffset: new Vector2(-170, 0),
       ...options,
     });
 
-    // ── Background ────────────────────────────────────────────────────────────
-    // A full-screen rectangle that follows the active color profile.
-    // Replace or remove once you add real content.
-    const backgroundRect = new Rectangle(0, 0, this.layoutBounds.width, this.layoutBounds.height, {
-      fill: LightPropagationColors.backgroundColorProperty,
+    const scene = model.scene;
+
+    const presetComboBox = new LabPresetComboBox(model, this);
+    const presetControl = new VBox({
+      children: [new Text(presets.titleStringProperty, CONTROL_TITLE_OPTIONS), presetComboBox],
+      spacing: 6,
+      align: "left",
     });
-    this.addChild(backgroundRect);
 
-    // ── Placeholder label ─────────────────────────────────────────────────────
-    // Replace this with your actual simulation content.
-    const placeholderText = new Text("Lab", {
-      font: "bold 36px sans-serif",
-      fill: LightPropagationColors.textColorProperty,
-      center: this.layoutBounds.center,
+    const wave1Control = new WaveControlNode(scene.wave1, {
+      titleStringProperty: controls.wave1StringProperty,
+      titleColorProperty: LightPropagationColors.wave1ColorProperty,
+      showEnabledCheckbox: true,
+      showReverse: true,
+      accessibleNames: {},
     });
-    this.addChild(placeholderText);
 
-    // ── Accessibility: per-control names ────────────────────────────────────────
-    // EVERY interactive node must carry an `accessibleName` (and an
-    // `accessibleHelpText` where useful), sourced from the StringManager `a11y`
-    // string group — never a hard-coded English literal. Sun/scenery-phet controls
-    // (NumberControl, Checkbox, ComboBox, AquaRadioButtonGroup, …) accept it as an
-    // option; a draggable plain Node needs `tagName: "div", focusable: true` too.
-    // Example (uncomment and adapt when you add a real control):
-    //
-    //   const a11y = StringManager.getInstance().getLabA11yStrings();
-    //   const exampleButton = new RectangularPushButton({
-    //     ...FLAT_RECTANGULAR_BUTTON_OPTIONS, // flat appearance, not SceneryStack's default 3-D look
-    //     content: someIcon,
-    //     listener: () => model.doSomething(),
-    //     accessibleName: a11y.controls.exampleControlStringProperty,
-    //   });
-    //   this.addChild(exampleButton);
-
-    // ── Reset All button ──────────────────────────────────────────────────────
-    // Always position at bottom-right (PhET convention).
-    const resetAllButton = new ResetAllButton({
-      ...FLAT_RESET_ALL_BUTTON_OPTIONS,
-      listener: () => {
-        model.reset();
-        this.reset();
-      },
-      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
-      bottom: this.layoutBounds.maxY - SCREEN_VIEW_MARGIN,
+    const wave2Control = new WaveControlNode(scene.wave2, {
+      titleStringProperty: controls.wave2StringProperty,
+      titleColorProperty: LightPropagationColors.wave2ColorProperty,
+      showEnabledCheckbox: true,
+      showPhase: true,
+      accessibleNames: {},
     });
-    this.addChild(resetAllButton);
 
-    // ── Accessibility: keyboard / reading traversal order ───────────────────────
-    // Make the parallel DOM (Tab order and screen-reader reading order)
-    // deterministic and independent of child z-order. ScreenView throws if you
-    // set pdomOrder on itself, so add a lightweight wrapper Node that "borrows"
-    // the interactive nodes in the order a user should reach them — Reset All
-    // last. Non-interactive decoration (background, placeholder) is omitted.
-    this.addChild(
-      new Node({
-        pdomOrder: [
-          // TODO: add the sim's interactive nodes here, in traversal order
-          resetAllButton,
-        ],
-      }),
+    const sumCheckbox = new ThemedCheckbox(
+      scene.sumEnabledProperty,
+      new Text(controls.sumStringProperty, CONTROL_TEXT_OPTIONS),
+      { accessibleName: controls.sumStringProperty },
     );
-  }
 
-  /**
-   * Resets view-side state (animations, panel visibility, etc.).
-   * Called by the Reset All button listener.
-   */
-  public reset(): void {
-    // TODO: reset any view-side state here
-  }
+    const materialControl = new MaterialControlNode(scene.material, {
+      showSameAsWave1: true,
+    });
 
-  /**
-   * Steps the view forward by dt seconds for animation.
-   * @param _dt - elapsed time in seconds
-   */
-  public override step(_dt: number): void {
-    // TODO: implement animation updates here
+    const viewControl = new ViewControlNode(scene, this.camera, {
+      showSumCurveCheckbox: true,
+      accessibleNames: {
+        presets: {
+          nice: common.cameraPresets.niceStringProperty,
+          side: common.cameraPresets.sideStringProperty,
+          front: common.cameraPresets.frontStringProperty,
+          back: common.cameraPresets.backStringProperty,
+        },
+      },
+    });
+
+    // "Copy link": puts a permalink for the current configuration on the
+    // clipboard; the label flips to a brief confirmation.
+    const linkCopiedProperty = new BooleanProperty(false);
+    const copyLinkButton = new RectangularPushButton({
+      ...FLAT_RECTANGULAR_BUTTON_OPTIONS,
+      content: new Text(
+        booleanPhraseProperty(linkCopiedProperty, controls.linkCopiedStringProperty, controls.copyLinkStringProperty),
+        { font: CONTROL_FONT, fill: LIGHT_SURFACE_TEXT_FILL, maxWidth: 140 },
+      ),
+      baseColor: LightPropagationColors.controlSurfaceColorProperty,
+      listener: () => {
+        const query = queryStringFromState(scene.getState());
+        const url = `${window.location.origin}${window.location.pathname}${query ? `?${query}` : ""}`;
+        navigator.clipboard?.writeText(url).then(() => {
+          linkCopiedProperty.value = true;
+          stepTimer.setTimeout(() => {
+            linkCopiedProperty.value = false;
+          }, 2000);
+        });
+      },
+      accessibleName: controls.copyLinkStringProperty,
+    });
+
+    const waveColumn = new VBox({
+      children: [
+        new LightPropagationPanel(presetControl),
+        new LightPropagationPanel(wave1Control),
+        new LightPropagationPanel(wave2Control),
+      ],
+      spacing: 8,
+      align: "left",
+    });
+    const settingsColumn = new VBox({
+      children: [
+        new LightPropagationPanel(sumCheckbox),
+        new LightPropagationPanel(materialControl),
+        new LightPropagationPanel(viewControl),
+        copyLinkButton,
+      ],
+      spacing: 8,
+      align: "left",
+    });
+
+    const panelColumns = new HBox({
+      children: [waveColumn, settingsColumn],
+      spacing: 10,
+      align: "top",
+      // Scales the whole control surface down if a locale's strings make it
+      // taller than the screen.
+      maxHeight: this.layoutBounds.height - 2 * SCREEN_VIEW_MARGIN,
+      right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
+      top: this.layoutBounds.minY + SCREEN_VIEW_MARGIN,
+    });
+    this.addChild(panelColumns);
+
+    this.setScreenPdomOrder([
+      presetComboBox,
+      ...wave1Control.interactiveNodes,
+      ...wave2Control.interactiveNodes,
+      sumCheckbox,
+      ...materialControl.interactiveNodes,
+      ...viewControl.interactiveNodes,
+      copyLinkButton,
+    ]);
   }
 }

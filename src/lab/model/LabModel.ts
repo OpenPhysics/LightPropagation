@@ -1,43 +1,68 @@
 /**
  * LabModel.ts
  *
- * The top-level model for the simulation screen.
+ * Model for the Lab screen: the full EMANIM control surface — two waves with
+ * every per-wave control, the full material (n and κ per wave plus the
+ * "same as wave 1" coupling), and a 20-entry preset selector.
  *
- * Add your simulation's state here using reactive Property objects from
- * scenerystack/axon. The view observes these properties and updates automatically.
- *
- * ── Example ──────────────────────────────────────────────────────────────────
- *   import { BooleanProperty, NumberProperty } from "scenerystack/axon";
- *
- *   public readonly isRunningProperty = new BooleanProperty(false);
- *   public readonly timeProperty = new NumberProperty(0);    // seconds
- *
- * ── Step cycle ────────────────────────────────────────────────────────────────
- * The Sim calls step(dt) on every animation frame. Advance your model state
- * in that method (e.g. integrate equations, update positions).
- *
- * ── Reset ─────────────────────────────────────────────────────────────────────
- * reset() is called when the user presses Reset All. Call .reset() on every
- * Property declared here.
+ * Selecting a preset applies its state to the scene; any manual change to a
+ * scene state Property flips the selector to "custom" (the writes performed
+ * by applyState/reset themselves are guarded out via scene.isApplyingState).
  */
+import { StringUnionProperty } from "scenerystack/axon";
 import type { TModel } from "scenerystack/joist";
+import { WaveSceneModel } from "../../common/model/WaveSceneModel.js";
+import type { WaveSceneState } from "../../common/model/WaveSceneState.js";
+import { getLabPresetState, type LabPresetSelection, LabPresetSelectionValues } from "./LabPresets.js";
+
+/** The screen's startup configuration (from permalink query parameters). */
+export type LabInitialState = {
+  state: WaveSceneState;
+  selection: LabPresetSelection;
+};
 
 export class LabModel implements TModel {
+  // The defaults are exactly the "Vertical" preset, so with no query
+  // parameters the selector starts there.
+  public readonly scene: WaveSceneModel;
+
+  public readonly presetProperty: StringUnionProperty<LabPresetSelection>;
+
+  public constructor(initial?: LabInitialState) {
+    this.scene = new WaveSceneModel(initial?.state);
+    this.presetProperty = new StringUnionProperty<LabPresetSelection>(initial?.selection ?? "vertical", {
+      validValues: LabPresetSelectionValues,
+    });
+    this.presetProperty.lazyLink((preset) => {
+      if (preset !== "custom") {
+        this.scene.applyState(getLabPresetState(preset));
+      }
+    });
+
+    // Any manual edit of the serializable state turns the selection custom.
+    for (const stateProperty of this.scene.stateProperties) {
+      stateProperty.lazyLink(() => {
+        if (!this.scene.isApplyingState) {
+          this.presetProperty.value = "custom";
+        }
+      });
+    }
+  }
+
   /**
    * Resets all model state to initial values.
    * Called when the user presses the Reset All button.
    */
   public reset(): void {
-    // TODO: call .reset() on every Property declared in this model
+    this.scene.reset();
+    this.presetProperty.reset();
   }
 
   /**
    * Steps the model forward by dt seconds.
-   * Called every animation frame by the Sim framework.
-   *
-   * @param _dt - elapsed time in seconds since the last frame
+   * @param dt - elapsed time in seconds since the last frame
    */
-  public step(_dt: number): void {
-    // TODO: advance simulation state here
+  public step(dt: number): void {
+    this.scene.step(dt);
   }
 }

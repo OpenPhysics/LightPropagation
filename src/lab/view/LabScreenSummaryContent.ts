@@ -1,38 +1,49 @@
 /**
  * LabScreenSummaryContent.ts
  *
- * The accessible screen summary read by screen readers (SceneryStack's
- * Interactive Description). It appears at the top of the parallel DOM and gives
- * a non-visual user a way to orient themselves and to re-read the simulation's
- * current state at any time.
- *
- * A summary has four regions (all optional, but provide at least the first
- * three in every sim for consistency across OpenPhysics):
- *   - playAreaContent       — what the play area contains
- *   - controlAreaContent    — what the controls do
- *   - currentDetailsContent — a LIVE paragraph describing current state
- *   - interactionHintContent — a short hint on how to get started
- *
- * ── Making "current details" live ─────────────────────────────────────────────
- * This scaffold has no model state yet, so currentDetails is a static string. In a
- * real sim, build a DerivedProperty over the relevant model Properties and pass
- * it as `currentDetailsContent` so the paragraph updates as the sim runs.
- * See LunarLander/src/.../LunarLanderScreenSummaryContent.ts for the pattern.
+ * The accessible screen summary for the Lab screen. The current-details
+ * paragraph is a live PatternStringProperty over each wave's on/off state and
+ * polarization, whether the material is inserted, and the play state.
  */
+import { DerivedProperty, PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import type { EMWave } from "../../common/model/EMWave.js";
+import {
+  booleanPhraseProperty,
+  motionStatePhraseProperty,
+  polarizationPhraseProperty,
+} from "../../common/view/summaryPhrases.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { LabModel } from "../model/LabModel.js";
 
 export class LabScreenSummaryContent extends ScreenSummaryContent {
-  // `model` is unused for now but kept in the signature so real sims can
-  // derive a live currentDetailsContent from it without changing call sites.
-  public constructor(_model: LabModel) {
+  public constructor(model: LabModel) {
     const a11y = StringManager.getInstance().getLabA11yStrings();
+    const scene = model.scene;
+
+    // "vertically polarized" while the wave is on, "off" otherwise.
+    const waveStateProperty = (wave: EMWave): TReadOnlyProperty<string> => {
+      const phraseProperty = polarizationPhraseProperty(wave.polarizationProperty);
+      return DerivedProperty.deriveAny([wave.enabledProperty, phraseProperty, a11y.waveOffStringProperty], () =>
+        wave.enabledProperty.value ? phraseProperty.value : a11y.waveOffStringProperty.value,
+      );
+    };
+
+    const currentDetailsProperty = new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
+      wave1State: waveStateProperty(scene.wave1),
+      wave2State: waveStateProperty(scene.wave2),
+      materialState: booleanPhraseProperty(
+        scene.material.enabledProperty,
+        a11y.materialInsertedStringProperty,
+        a11y.materialRemovedStringProperty,
+      ),
+      motionState: motionStatePhraseProperty(scene.timer.isPlayingProperty),
+    });
 
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: a11y.currentDetailsStringProperty,
+      currentDetailsContent: currentDetailsProperty,
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }

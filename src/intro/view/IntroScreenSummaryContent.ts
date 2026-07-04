@@ -1,38 +1,60 @@
 /**
  * IntroScreenSummaryContent.ts
  *
- * The accessible screen summary read by screen readers (SceneryStack's
- * Interactive Description). It appears at the top of the parallel DOM and gives
- * a non-visual user a way to orient themselves and to re-read the simulation's
- * current state at any time.
- *
- * A summary has four regions (all optional, but provide at least the first
- * three in every sim for consistency across OpenPhysics):
- *   - playAreaContent       — what the play area contains
- *   - controlAreaContent    — what the controls do
- *   - currentDetailsContent — a LIVE paragraph describing current state
- *   - interactionHintContent — a short hint on how to get started
- *
- * ── Making "current details" live ─────────────────────────────────────────────
- * This scaffold has no model state yet, so currentDetails is a static string. In a
- * real sim, build a DerivedProperty over the relevant model Properties and pass
- * it as `currentDetailsContent` so the paragraph updates as the sim runs.
- * See LunarLander/src/.../LunarLanderScreenSummaryContent.ts for the pattern.
+ * The accessible screen summary for the Intro screen. The current-details
+ * paragraph is a live PatternStringProperty over the wave's polarization,
+ * amplitude, wavelength and play state, so screen-reader users can re-read
+ * the up-to-date state at any time.
  */
+import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
 import { ScreenSummaryContent } from "scenerystack/sim";
+import type { PolarizationType } from "../../common/model/PolarizationType.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import type { IntroModel } from "../model/IntroModel.js";
 
 export class IntroScreenSummaryContent extends ScreenSummaryContent {
-  // `model` is unused for now but kept in the signature so real sims can
-  // derive a live currentDetailsContent from it without changing call sites.
-  public constructor(_model: IntroModel) {
+  public constructor(model: IntroModel) {
     const a11y = StringManager.getInstance().getIntroA11yStrings();
+    const common = StringManager.getInstance().getCommonA11yStrings();
+
+    const polarizationPhraseProperty = DerivedProperty.deriveAny(
+      [
+        model.scene.wave1.polarizationProperty,
+        common.polarizationDescription.verticalStringProperty,
+        common.polarizationDescription.horizontalStringProperty,
+        common.polarizationDescription.leftCircularStringProperty,
+        common.polarizationDescription.rightCircularStringProperty,
+      ],
+      () => {
+        const phrases: Record<PolarizationType, string> = {
+          vertical: common.polarizationDescription.verticalStringProperty.value,
+          horizontal: common.polarizationDescription.horizontalStringProperty.value,
+          leftCircular: common.polarizationDescription.leftCircularStringProperty.value,
+          rightCircular: common.polarizationDescription.rightCircularStringProperty.value,
+        };
+        return phrases[model.scene.wave1.polarizationProperty.value];
+      },
+    );
+
+    const motionStateProperty = DerivedProperty.deriveAny(
+      [model.scene.timer.isPlayingProperty, common.motionPlayingStringProperty, common.motionPausedStringProperty],
+      () =>
+        model.scene.timer.isPlayingProperty.value
+          ? common.motionPlayingStringProperty.value
+          : common.motionPausedStringProperty.value,
+    );
+
+    const currentDetailsProperty = new PatternStringProperty(a11y.currentDetailsPatternStringProperty, {
+      polarization: polarizationPhraseProperty,
+      amplitude: model.scene.wave1.amplitudeProperty,
+      wavelength: model.scene.wave1.wavelengthNumberProperty,
+      motionState: motionStateProperty,
+    });
 
     super({
       playAreaContent: a11y.screenSummary.playAreaStringProperty,
       controlAreaContent: a11y.screenSummary.controlAreaStringProperty,
-      currentDetailsContent: a11y.currentDetailsStringProperty,
+      currentDetailsContent: currentDetailsProperty,
       interactionHintContent: a11y.screenSummary.interactionHintStringProperty,
     });
   }

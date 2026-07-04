@@ -6,42 +6,169 @@
     "wavePlates": "Wave Plates",
     "lab": "Lab"
   },
+  "controls": {
+    "wave1": "Wave 1",
+    "wave2": "Wave 2",
+    "polarization": {
+      "vertical": "Vertical",
+      "horizontal": "Horizontal",
+      "leftCircular": "Left circular",
+      "rightCircular": "Right circular"
+    },
+    "amplitude": "Amplitude",
+    "wavelength": "Wavelength",
+    "phaseDifference": "Phase difference",
+    "reverseDirection": "Reverse direction",
+    "sum": "Show sum",
+    "material": {
+      "title": "Material",
+      "polarizerTitle": "Polarizer (dichroic filter)",
+      "wavePlateTitle": "Wave plate (birefringent slab)",
+      "insert": "Insert material",
+      "length": "Length",
+      "refractiveIndex": "Refractive index n",
+      "extinction": "Extinction coefficient κ",
+      "sameAsWave1": "Same as wave 1"
+    },
+    "display": {
+      "title": "Display",
+      "electricFieldVectors": "E-field vectors",
+      "magneticField": "Magnetic field",
+      "componentCurves": "Wave curves",
+      "sumCurve": "Sum curve"
+    },
+    "views": {
+      "title": "View",
+      "nice": "Nice",
+      "side": "Side",
+      "front": "Front",
+      "back": "Back",
+      "parallelProjection": "Parallel projection"
+    },
+    "degreesPattern": "{{value}}°",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied!",
+    "webglWarning": "3D graphics are not available on this device or browser, so the wave view cannot be shown.",
+    "contextLossWarning": "Sorry, a graphics error occurred. Reload the page to continue.",
+    "reload": "Reload"
+  },
+  "presets": {
+    "title": "Show me",
+    "custom": "Custom",
+    "categoryPattern": "{{category}}: {{preset}}",
+    "categories": {
+      "singleWaves": "Single waves",
+      "superposition": "Superposition",
+      "interference": "Interference",
+      "material": "Material",
+      "linearAnisotropy": "Linear anisotropy",
+      "circularAnisotropy": "Circular anisotropy"
+    },
+    "vertical": "Vertical",
+    "horizontal": "Horizontal",
+    "leftCircular": "Left circular",
+    "rightCircular": "Right circular",
+    "linearPlusLinear1": "Linear + linear, in phase",
+    "linearPlusLinear2": "Linear + linear, 90° out of phase",
+    "leftPlusRightCircular": "Left + right circular",
+    "wavelengthRatio1to1": "Wavelength ratio 1:1",
+    "wavelengthRatio1to8": "Wavelength ratio 1:8",
+    "wavelengthRatio7to8": "Wavelength ratio 7:8",
+    "standingWave": "Standing wave",
+    "absorption": "Absorption",
+    "refraction": "Refraction",
+    "absorptionRefraction": "Absorption + refraction",
+    "linearDichroism": "Linear dichroism (polarizer)",
+    "linearBirefringence": "Linear birefringence (wave plate)",
+    "linearDichroismBirefringence": "Linear dichroism + birefringence",
+    "circularDichroism": "Circular dichroism",
+    "circularBirefringence": "Circular birefringence (optical rotation)",
+    "circularDichroismBirefringence": "Circular dichroism + birefringence"
+  },
+  "wavePlatesControls": {
+    "quarterWave": "Quarter-wave plate",
+    "halfWave": "Half-wave plate",
+    "retardationPattern": "Retardation: {{degrees}}° = {{waves}} λ",
+    "fastAxis": "Fast axis",
+    "slowAxis": "Slow axis",
+    "fastAxisPattern": "Fast axis: {{axis}}"
+  },
+  "keyboardHelp": {
+    "rotateViewTitle": "Rotate 3D View",
+    "rotateView": "Rotate view",
+    "zoomView": "Zoom in or out"
+  },
   "a11y": {
+    "common": {
+      "cameraPresets": {
+        "nice": "Nice view (angled three-quarter view)",
+        "side": "Side view",
+        "front": "Front view",
+        "back": "Back view"
+      },
+      "polarizationDescription": {
+        "vertical": "vertically polarized",
+        "horizontal": "horizontally polarized",
+        "leftCircular": "left circularly polarized",
+        "rightCircular": "right circularly polarized"
+      },
+      "motionPlaying": "animating",
+      "motionPaused": "paused"
+    },
     "intro": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A three-dimensional view of an electromagnetic wave traveling along a horizontal axis, shown as an animated curve of its electric field with field arrows at both ends.",
+        "controlArea": "Controls set the wave's polarization, amplitude, and wavelength. View buttons change the camera angle, a time control plays, pauses, or steps the animation, and a Reset All button restores the starting state.",
+        "interactionHint": "Change the wave's polarization, amplitude, or wavelength, or rotate the 3D view."
       },
-      "currentDetails": "The simulation is in its initial state."
+      "currentDetailsPattern": "A {{polarization}} wave with amplitude {{amplitude}} of 10 and wavelength number {{wavelength}} of 8 is {{motionState}}.",
+      "waveView": {
+        "accessibleName": "3D wave view",
+        "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
+      }
     },
     "polarization": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A three-dimensional view of two electromagnetic waves traveling along a shared horizontal axis, shown as animated curves of their electric fields, plus an optional superposition curve and an optional polarizing filter centered on the axis.",
+        "controlArea": "Controls set each wave's polarization and amplitude, the shared wavelength, and the phase difference between the waves. A polarizer section inserts a dichroic filter and sets how strongly it absorbs each wave. View buttons change the camera angle, a time control plays, pauses, or steps the animation, and a Reset All button restores the starting state.",
+        "interactionHint": "Change a wave's polarization or amplitude, show the sum of the two waves, or insert the polarizer."
       },
-      "currentDetails": "The simulation is in its initial state."
+      "currentDetailsPattern": "Wave 1 is {{polarization1}} with amplitude {{amplitude1}} of 10, and wave 2 is {{polarization2}} with amplitude {{amplitude2}} of 10; the phase difference is {{phase}} degrees. The polarizer is {{polarizerState}}. The animation is {{motionState}}.",
+      "polarizerInserted": "inserted",
+      "polarizerRemoved": "removed",
+      "waveView": {
+        "accessibleName": "3D wave view",
+        "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
+      }
     },
     "wavePlates": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A three-dimensional view of the vertical and horizontal components of a light wave traveling along a horizontal axis, their superposition, and a birefringent wave plate centered on the axis that delays one component relative to the other.",
+        "controlArea": "Controls set each component's amplitude, the phase difference, and the wave plate's length and per-component refractive indices. Quarter-wave and half-wave buttons configure the plate exactly, and a readout reports the resulting retardation. View buttons change the camera angle, a time control plays, pauses, or steps the animation, and a Reset All button restores the starting state.",
+        "interactionHint": "Press the quarter-wave or half-wave plate button, or adjust the refractive indices, and watch the polarization of the outgoing sum change."
       },
-      "currentDetails": "The simulation is in its initial state."
+      "currentDetailsPattern": "The vertical component has amplitude {{amplitude1}} of 10 and the horizontal component has amplitude {{amplitude2}} of 10; the phase difference is {{phase}} degrees. The wave plate is {{plateState}} with a retardation of {{retardation}} degrees. The animation is {{motionState}}.",
+      "plateInserted": "inserted",
+      "plateRemoved": "removed",
+      "waveView": {
+        "accessibleName": "3D wave view",
+        "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
+      }
     },
     "lab": {
       "screenSummary": {
-        "playArea": "The play area shows the main simulation content.",
-        "controlArea": "The control area has a Reset All button that returns the simulation to its starting state.",
-        "interactionHint": "Explore the simulation by interacting with its controls."
+        "playArea": "A three-dimensional view of up to two electromagnetic waves traveling along a horizontal axis, their superposition, and an optional material slab whose refractive index and extinction coefficient for each wave produce absorption, refraction, dichroism, birefringence, and optical activity.",
+        "controlArea": "A preset menu offers twenty ready-made phenomena. Controls set each wave's polarization, amplitude, wavelength, phase, and direction, and the material's length and per-wave optical constants. Display checkboxes toggle the curves, field vectors, and magnetic field. View buttons change the camera angle, a time control plays, pauses, or steps the animation, and a Reset All button restores the starting state.",
+        "interactionHint": "Pick a preset from the Show me menu, or build your own configuration with the wave and material controls."
       },
-      "currentDetails": "The simulation is in its initial state."
+      "currentDetailsPattern": "Wave 1 is {{wave1State}}, and wave 2 is {{wave2State}}. The material is {{materialState}}. The animation is {{motionState}}.",
+      "waveOff": "off",
+      "materialInserted": "inserted",
+      "materialRemoved": "removed",
+      "waveView": {
+        "accessibleName": "3D wave view",
+        "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
+      }
     }
-  },
-  "preferences": {
-    "title": "Simulation",
-    "exampleToggle": "Example Toggle"
   }
 }

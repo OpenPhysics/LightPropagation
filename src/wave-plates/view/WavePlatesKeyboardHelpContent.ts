@@ -2,15 +2,10 @@
  * WavePlatesKeyboardHelpContent.ts
  *
  * Content for the keyboard-help dialog (the "?" button in the navigation bar).
- * The template's only interactions are buttons and Reset All, so a single
- * basic-actions section covers the available keyboard controls. Add a slider or
- * combo-box section here as the simulation grows.
+ * The Wave Plates screen has sliders, the 3D view, and time controls, all
+ * covered by the shared WaveKeyboardHelpContent.
  */
 
-import { BasicActionsKeyboardHelpSection, TwoColumnKeyboardHelpContent } from "scenerystack/scenery-phet";
+import { WaveKeyboardHelpContent } from "../../common/view/WaveKeyboardHelpContent.js";
 
-export class WavePlatesKeyboardHelpContent extends TwoColumnKeyboardHelpContent {
-  public constructor() {
-    super([new BasicActionsKeyboardHelpSection()], []);
-  }
-}
+export class WavePlatesKeyboardHelpContent extends WaveKeyboardHelpContent {}
