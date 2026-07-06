@@ -84,6 +84,17 @@ export class StringManager {
     };
   }
 
+  /** Simulation-specific preferences strings. */
+  public getPreferences(): {
+    readonly titleStringProperty: ReadOnlyProperty<string>;
+    readonly exampleToggleStringProperty: ReadOnlyProperty<string>;
+  } {
+    return {
+      titleStringProperty: stringProperties.preferences.titleStringProperty,
+      exampleToggleStringProperty: stringProperties.preferences.exampleToggleStringProperty,
+    };
+  }
+
   /**
    * Shared control-panel labels (waves, polarization, material, display,
    * camera views) used by every screen.

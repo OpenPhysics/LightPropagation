@@ -150,6 +150,13 @@ const lightPropagationQueryParameters = QueryStringMachine.getAll({
     isValidValue: (value: number) => value >= 0 && value <= 1,
     public: true,
   },
+
+  /** Example preference toggle. */
+  exampleToggle: {
+    type: "boolean",
+    defaultValue: true,
+    public: true,
+  },
 });
 
 /**

@@ -170,5 +170,9 @@
         "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
       }
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "exampleToggle": "Example Toggle"
   }
 }

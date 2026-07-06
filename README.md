@@ -3,7 +3,9 @@
 An interactive simulation of how light propagates through polarizers and wave plates, built with
 [SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 6, and Biome 2.
 
-## Screens
+## Features
+
+### Screens
 
 - **Intro** (`src/intro/`) — introduces the play area and controls
 - **Polarization** (`src/polarization/`) — light through polarizing filters
@@ -12,7 +14,7 @@ An interactive simulation of how light propagates through polarizers and wave pl
 
 Each screen is currently a scaffold (placeholder label + Reset All) — physics is not yet implemented.
 
-## Features
+### Capabilities
 
 - Four-screen SceneryStack simulation with model/view separation per screen
 - English, French, and Spanish localization via `StringManager`

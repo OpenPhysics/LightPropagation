@@ -170,5 +170,9 @@
         "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
       }
     }
+  },
+  "preferences": {
+    "title": "Simulación",
+    "exampleToggle": "Alternar ejemplo"
   }
 }

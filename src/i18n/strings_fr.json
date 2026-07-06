@@ -170,5 +170,9 @@
         "accessibleHelpText": "Faites pivoter la vue avec les touches fléchées ; zoomez avec plus et moins."
       }
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "exampleToggle": "Activer l'exemple"
   }
 }
