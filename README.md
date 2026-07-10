@@ -1,18 +1,18 @@
 # Light Propagation
 
 An interactive simulation of how light propagates through polarizers and wave plates, built with
-[SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 6, and Biome 2.
+[SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 7, and Biome 2.
 
 ## Features
 
 ### Screens
 
-- **Intro** (`src/intro/`) — introduces the play area and controls
-- **Polarization** (`src/polarization/`) — light through polarizing filters
-- **Wave Plates** (`src/wave-plates/`) — retardation and birefringent wave plates
-- **Lab** (`src/lab/`) — open-ended exploration
+- **Intro** (`src/intro/`) — single vertical wave; introduces polarization, amplitude, wavelength, and the 3D view
+- **Polarization** (`src/polarization/`) — two waves through an optional dichroic polarizing filter
+- **Wave Plates** (`src/wave-plates/`) — birefringent slab with retardation readout (quarter- and half-wave presets)
+- **Lab** (`src/lab/`) — full control surface with 20 presets and custom exploration
 
-Each screen is currently a scaffold (placeholder label + Reset All) — physics is not yet implemented.
+Each screen composes the shared `WaveSceneModel` (`src/common/model/`) — electromagnetic wave propagation, optical materials, and field sampling — with screen-specific initial state and controls.
 
 ### Capabilities
 
@@ -37,13 +37,20 @@ npm start        # dev server → http://localhost:5173
 |---|---|
 | `npm start` / `npm run dev` | Start Vite dev server |
 | `npm run build` | Type-check + production build → `dist/` |
+| `npm run build:single` | Type-check + single-screen production build |
 | `npm run preview` | Preview the production build locally |
-| `npm run check` | TypeScript type check |
+| `npm run check` | TypeScript type check (app + scripts) |
 | `npm run lint` | Biome lint check |
 | `npm run format` | Auto-format all files |
 | `npm run fix` | Lint + auto-fix |
+| `npm run test` | Run Vitest unit tests |
+| `npm run test:watch` | Run Vitest in watch mode |
+| `npm run release` | Check, lint, build, bump patch version, push + tags |
+| `npm run watch` | TypeScript watch mode |
 | `npm run icons` | Regenerate PNG icons from `public/icons/icon.svg` |
+| `npm run rename` | Rename sim identifiers via `scripts/rename-sim.ts` |
 | `npm run clean` | Remove `dist/` |
+| `npm run prepare` | Install git hooks (`.githooks`) when in a git repo |
 
 New sims start at `version: "0.0.0"` in `package.json`. Bump only when cutting a release (for example `npm version patch` and a matching git tag). Keep `name` in kebab-case; it is separate from the SceneryStack sim identifier in `src/init.ts`.
 
@@ -53,7 +60,7 @@ New sims start at `version: "0.0.0"` in `package.json`. Bump only when cutting a
 |---|---|---|
 | [SceneryStack](https://scenerystack.org/) | ^3.0.0 | Simulation framework |
 | [Vite](https://vitejs.dev/) | ^8 | Build tool + dev server |
-| [TypeScript](https://www.typescriptlang.org/) | ^6 | Type-safe JavaScript |
+| [TypeScript](https://www.typescriptlang.org/) | ^7.0.2 | Type-safe JavaScript |
 | [Biome](https://biomejs.dev/) | ^2.5 | Linting + formatting |
 | [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | ^1 | PWA + service worker |
 

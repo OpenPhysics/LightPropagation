@@ -5,13 +5,14 @@ Sim-specific context for AI assistants. General SceneryStack guidance: [OpenPhys
 ## Project
 
 A four-screen SceneryStack simulation about light propagating through polarizers and wave
-plates, scaffolded from `TemplateSingleSim`. All four screens are currently scaffolding
-(placeholder label + Reset All) — no physics yet.
+plates, scaffolded from `TemplateSingleSim`. All four screens share electromagnetic-wave
+physics via `WaveSceneModel` in `src/common/model/` — each screen model composes a `scene`
+with screen-specific initial state and controls.
 
-- **Intro** (`src/intro/`) — introduces the play area and controls
-- **Polarization** (`src/polarization/`) — light through polarizing filters
-- **Wave Plates** (`src/wave-plates/`) — retardation and birefringent wave plates
-- **Lab** (`src/lab/`) — open-ended exploration
+- **Intro** (`src/intro/`) — single vertical wave; introduces polarization, amplitude, wavelength, and the 3D view
+- **Polarization** (`src/polarization/`) — two waves through an optional dichroic polarizing filter
+- **Wave Plates** (`src/wave-plates/`) — birefringent slab with retardation readout (quarter- and half-wave presets)
+- **Lab** (`src/lab/`) — full control surface with 20 presets and custom exploration
 
 Shared code keeps the `LightPropagation` prefix; per-screen code uses the
 `Intro` / `Polarization` / `WavePlates` / `Lab` prefixes. Concept-named folders, no `-screen` suffix.
@@ -26,6 +27,7 @@ Shared code keeps the `LightPropagation` prefix; per-screen code uses the
 | `src/common/LightPropagationPanel.ts` | Pre-themed `Panel` wrapper (uses `LightPropagationColors`) |
 | `src/common/LightPropagationButtonOptions.ts` | Flat button-appearance option bundles + light-control-surface combo-box options |
 | `src/common/TimeModel.ts` | Composable play/pause + elapsed-time model for animated sims |
+| `src/common/model/WaveSceneModel.ts` | Shared EM-wave physics core composed by every screen model |
 | `src/i18n/StringManager.ts` | Singleton localized string accessor; per-screen name + a11y getters |
 | `src/main.ts` | Entry point; registers all four screens with the Sim |
 | `src/intro/IntroScreen.ts` | `Screen<IntroModel, IntroScreenView>` wrapper |
