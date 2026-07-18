@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Interactive simulation of how light propagates through polarizers and wave plates — Intro, Polarization, Wave Plates, and Lab screens.",
+  "description": "Interactive simulation of how light propagates through polarizers and wave plates \u2014 Intro, Polarization, Wave Plates, and Lab screens.",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
     "@biomejs/biome": "^2.5.4",
     "@types/node": "^26.1.1",
     "@types/three": "^0.185.1",
-    "happy-dom": "^20.10.6",
+    "happy-dom": "^20.11.0",
     "jsdom": "^29.1.1",
     "png-to-ico": "^3.0.2",
     "sharp": "^0.35.3",
