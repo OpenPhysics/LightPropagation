@@ -14,6 +14,15 @@ polarizers (κ differs between the two waves), birefringence / wave plates (n di
 activity (n differs between left- and right-circular components). The superposition of the two waves
 shows how polarization states combine and transform.
 
+Four screens share the same physics core (`WaveSceneModel`):
+
+| Screen | Pedagogical focus |
+|---|---|
+| **Intro** | One wave; polarization, amplitude, wavelength, 3D view |
+| **Polarization** | Two waves + sum; shared λ; κ-only material (polarizer) |
+| **Wave Plates** | Locked V+H basis; n-only material; QWP/HWP presets; retardation readout |
+| **Lab** | Full EMANIM parity: 20 presets, all controls, permalinks |
+
 The model is a faithful port of **EMANIM** (Electromagnetic Waves Animated) by András Szilágyi
 (<https://emanim.szialab.org>), which is the source of the equations, control ranges, and the 20
 preset phenomena on the Lab screen. Both the classic Python EMANIM and the current web app were used
