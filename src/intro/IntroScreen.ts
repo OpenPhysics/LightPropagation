@@ -9,6 +9,7 @@ import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
+import { createIntroIcon } from "../common/LightPropagationScreenIcons.js";
 import LightPropagationColors from "../LightPropagationColors.js";
 import { IntroModel } from "./model/IntroModel.js";
 import { IntroKeyboardHelpContent } from "./view/IntroKeyboardHelpContent.js";
@@ -31,6 +32,8 @@ export class IntroScreen extends Screen<IntroModel, IntroScreenView> {
         {
           backgroundColorProperty: LightPropagationColors.backgroundColorProperty,
           createKeyboardHelpNode: () => new IntroKeyboardHelpContent(),
+          homeScreenIcon: createIntroIcon(),
+          navigationBarIcon: createIntroIcon(),
         },
         options,
       ),

@@ -9,6 +9,7 @@ import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
+import { createLabIcon } from "../common/LightPropagationScreenIcons.js";
 import LightPropagationColors from "../LightPropagationColors.js";
 import { getLabQueryParameterValues } from "../preferences/lightPropagationQueryParameters.js";
 import { LabModel } from "./model/LabModel.js";
@@ -36,6 +37,8 @@ export class LabScreen extends Screen<LabModel, LabScreenView> {
         {
           backgroundColorProperty: LightPropagationColors.backgroundColorProperty,
           createKeyboardHelpNode: () => new LabKeyboardHelpContent(),
+          homeScreenIcon: createLabIcon(),
+          navigationBarIcon: createLabIcon(),
         },
         options,
       ),

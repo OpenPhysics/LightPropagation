@@ -9,6 +9,7 @@ import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
+import { createPolarizationIcon } from "../common/LightPropagationScreenIcons.js";
 import LightPropagationColors from "../LightPropagationColors.js";
 import { PolarizationModel } from "./model/PolarizationModel.js";
 import { PolarizationKeyboardHelpContent } from "./view/PolarizationKeyboardHelpContent.js";
@@ -31,6 +32,8 @@ export class PolarizationScreen extends Screen<PolarizationModel, PolarizationSc
         {
           backgroundColorProperty: LightPropagationColors.backgroundColorProperty,
           createKeyboardHelpNode: () => new PolarizationKeyboardHelpContent(),
+          homeScreenIcon: createPolarizationIcon(),
+          navigationBarIcon: createPolarizationIcon(),
         },
         options,
       ),

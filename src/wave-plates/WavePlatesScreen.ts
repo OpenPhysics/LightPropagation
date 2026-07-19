@@ -9,6 +9,7 @@ import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { ScreenOptions } from "scenerystack/sim";
 import { Screen } from "scenerystack/sim";
 import type { Tandem } from "scenerystack/tandem";
+import { createWavePlatesIcon } from "../common/LightPropagationScreenIcons.js";
 import LightPropagationColors from "../LightPropagationColors.js";
 import { WavePlatesModel } from "./model/WavePlatesModel.js";
 import { WavePlatesKeyboardHelpContent } from "./view/WavePlatesKeyboardHelpContent.js";
@@ -31,6 +32,8 @@ export class WavePlatesScreen extends Screen<WavePlatesModel, WavePlatesScreenVi
         {
           backgroundColorProperty: LightPropagationColors.backgroundColorProperty,
           createKeyboardHelpNode: () => new WavePlatesKeyboardHelpContent(),
+          homeScreenIcon: createWavePlatesIcon(),
+          navigationBarIcon: createWavePlatesIcon(),
         },
         options,
       ),
