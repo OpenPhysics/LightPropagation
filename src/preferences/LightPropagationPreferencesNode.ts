@@ -15,24 +15,27 @@ import LightPropagationColors from "../LightPropagationColors.js";
 import LightPropagationNamespace from "../LightPropagationNamespace.js";
 import type { LightPropagationPreferencesModel } from "./LightPropagationPreferencesModel.js";
 
+/** Preferences dialog content sits on a light background regardless of color profile. */
+const PREFERENCES_TEXT_FILL = LightPropagationColors.controlSurfaceTextColorProperty;
+
 export class LightPropagationPreferencesNode extends VBox {
   public constructor(preferencesModel: LightPropagationPreferencesModel, tandem?: Tandem) {
     const prefStrings = StringManager.getInstance().getPreferences();
 
     const header = new Text(prefStrings.titleStringProperty, {
       font: new PhetFont({ size: 18, weight: "bold" }),
-      fill: LightPropagationColors.textColorProperty,
+      fill: PREFERENCES_TEXT_FILL,
     });
 
     const exampleToggleCheckbox = new Checkbox(
       preferencesModel.exampleToggleProperty,
       new Text(prefStrings.exampleToggleStringProperty, {
         font: new PhetFont(14),
-        fill: LightPropagationColors.textColorProperty,
+        fill: PREFERENCES_TEXT_FILL,
       }),
       {
-        checkboxColor: LightPropagationColors.textColorProperty,
-        checkboxColorBackground: LightPropagationColors.panelBackgroundColorProperty,
+        checkboxColor: PREFERENCES_TEXT_FILL,
+        checkboxColorBackground: LightPropagationColors.controlSurfaceColorProperty,
         spacing: 8,
         ...(tandem && { tandem: tandem.createTandem("exampleToggleCheckbox") }),
       },
