@@ -28,16 +28,11 @@ import { LabScreen } from "./lab/LabScreen.js";
 import { PolarizationScreen } from "./polarization/PolarizationScreen.js";
 // Declares the permalink query parameters (and logs them) at startup.
 import "./preferences/lightPropagationQueryParameters.js";
-import { LightPropagationPreferencesModel } from "./preferences/LightPropagationPreferencesModel.js";
-import { LightPropagationPreferencesNode } from "./preferences/LightPropagationPreferencesNode.js";
 import { WavePlatesScreen } from "./wave-plates/WavePlatesScreen.js";
 
 onReadyToLaunch(() => {
   const stringManager = StringManager.getInstance();
   const screenNames = stringManager.getScreenNames();
-
-  // Simulation-specific preferences; initial values come from lightPropagationQueryParameters.
-  const simPreferences = new LightPropagationPreferencesModel(Tandem.ROOT.createTandem("preferences"));
 
   // Screen name Properties update automatically when the locale changes.
   const screens = [
@@ -71,25 +66,18 @@ onReadyToLaunch(() => {
         // Enables keyboard-navigation highlight outlines
         supportsInteractiveHighlights: true,
       },
-      simulationOptions: {
-        customPreferences: [
-          {
-            createContent: (tandem: Tandem) => new LightPropagationPreferencesNode(simPreferences, tandem),
-          },
-        ],
-      },
       localizationOptions: {
         // Adds a language picker in Preferences → Language
         supportsDynamicLocale: true,
       },
     }),
 
-    // Optional: fill in credits shown in Help → About
+    // Credits shown in the About dialog.
     credits: {
-      leadDesign: "",
-      softwareDevelopment: "",
-      team: "",
-      qualityAssurance: "",
+      thanks:
+        "Based on EMANIM: Interactive visualization of electromagnetic waves by András Szilágyi " +
+        "(emanim.szialab.org), the source of the model equations, control ranges, and preset phenomena. " +
+        "Built with SceneryStack as part of the OpenPhysics fleet.",
     },
   });
 

@@ -3,6 +3,11 @@
 An interactive simulation of how light propagates through polarizers and wave plates, built with
 [SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 7, and Biome 2.
 
+The physics model is a faithful port of **[EMANIM](https://emanim.szialab.org)** (Electromagnetic
+Waves Animated) by András Szilágyi — the source of the model equations, control ranges, and the 20
+preset phenomena on the Lab screen. See [`doc/model.md`](doc/model.md) for the model description
+and [CREDITS.md](CREDITS.md) for full acknowledgments.
+
 ## Features
 
 ### Screens
@@ -49,7 +54,6 @@ npm start        # dev server → http://localhost:5173
 | `npm run release` | Check, lint, build, bump patch version, push + tags |
 | `npm run watch` | TypeScript watch mode |
 | `npm run icons` | Regenerate PNG icons from `public/icons/icon.svg` |
-| `npm run rename` | Rename sim identifiers via `scripts/rename-sim.ts` |
 | `npm run clean` | Remove `dist/` |
 | `npm run prepare` | Install git hooks (`.githooks`) when in a git repo |
 

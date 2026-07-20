@@ -10,6 +10,7 @@
     "wave1": "Onde 1",
     "wave2": "Onde 2",
     "polarization": {
+      "title": "Polarisation",
       "vertical": "Verticale",
       "horizontal": "Horizontale",
       "leftCircular": "Circulaire gauche",
@@ -170,9 +171,5 @@
         "accessibleHelpText": "Faites pivoter la vue avec les touches fléchées ; zoomez avec plus et moins."
       }
     }
-  },
-  "preferences": {
-    "title": "Simulation",
-    "exampleToggle": "Activer l'exemple"
   }
 }

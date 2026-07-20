@@ -28,6 +28,7 @@ import {
   SIM_NUMBER_CONTROL_OPTIONS,
   SIM_RADIO_GROUP_OPTIONS,
 } from "./LightPropagationControlOptions.js";
+import { scopedNameProperty } from "./summaryPhrases.js";
 import { ThemedCheckbox } from "./ThemedCheckbox.js";
 
 export type WaveControlNodeOptions = {
@@ -71,6 +72,11 @@ export class WaveControlNode extends VBox {
     const children: Node[] = [];
     const interactiveNodes: Node[] = [];
 
+    // Default accessible names are scoped by the block title ("Amplitude,
+    // Wave 1"), since the same controls repeat once per wave on most screens.
+    const scoped = (labelProperty: TReadOnlyProperty<string>): TReadOnlyProperty<string> =>
+      scopedNameProperty(labelProperty, options.titleStringProperty);
+
     const title = new Text(options.titleStringProperty, {
       font: CONTROL_TITLE_FONT,
       fill: options.titleColorProperty,
@@ -103,7 +109,7 @@ export class WaveControlNode extends VBox {
         })),
         {
           ...SIM_RADIO_GROUP_OPTIONS,
-          accessibleName: options.accessibleNames.polarization ?? null,
+          accessibleName: options.accessibleNames.polarization ?? scoped(controls.polarization.titleStringProperty),
         },
       );
       children.push(radioGroup);
@@ -122,7 +128,7 @@ export class WaveControlNode extends VBox {
             ...SIM_NUMBER_CONTROL_OPTIONS.sliderOptions,
             constrainValue: (value: number) => Math.round(value),
           },
-          accessibleName: options.accessibleNames.amplitude ?? controls.amplitudeStringProperty,
+          accessibleName: options.accessibleNames.amplitude ?? scoped(controls.amplitudeStringProperty),
         },
       );
       children.push(amplitudeControl);
@@ -141,7 +147,7 @@ export class WaveControlNode extends VBox {
             ...SIM_NUMBER_CONTROL_OPTIONS.sliderOptions,
             constrainValue: (value: number) => Math.round(value),
           },
-          accessibleName: options.accessibleNames.wavelength ?? controls.wavelengthStringProperty,
+          accessibleName: options.accessibleNames.wavelength ?? scoped(controls.wavelengthStringProperty),
         },
       );
       children.push(wavelengthControl);
@@ -164,7 +170,7 @@ export class WaveControlNode extends VBox {
             ...SIM_NUMBER_CONTROL_OPTIONS.sliderOptions,
             constrainValue: (value: number) => Math.round(value / PHASE_DEGREES_STEP) * PHASE_DEGREES_STEP,
           },
-          accessibleName: options.accessibleNames.phase ?? controls.phaseDifferenceStringProperty,
+          accessibleName: options.accessibleNames.phase ?? scoped(controls.phaseDifferenceStringProperty),
         },
       );
       children.push(phaseControl);
@@ -175,7 +181,7 @@ export class WaveControlNode extends VBox {
       const reverseCheckbox = new ThemedCheckbox(
         wave.reversedProperty,
         new Text(controls.reverseDirectionStringProperty, CONTROL_TEXT_OPTIONS),
-        { accessibleName: options.accessibleNames.reverse ?? controls.reverseDirectionStringProperty },
+        { accessibleName: options.accessibleNames.reverse ?? scoped(controls.reverseDirectionStringProperty) },
       );
       children.push(reverseCheckbox);
       interactiveNodes.push(reverseCheckbox);

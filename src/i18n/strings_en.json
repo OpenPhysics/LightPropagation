@@ -10,6 +10,7 @@
     "wave1": "Wave 1",
     "wave2": "Wave 2",
     "polarization": {
+      "title": "Polarization",
       "vertical": "Vertical",
       "horizontal": "Horizontal",
       "leftCircular": "Left circular",
@@ -170,9 +171,5 @@
         "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
       }
     }
-  },
-  "preferences": {
-    "title": "Simulation",
-    "exampleToggle": "Example Toggle"
   }
 }

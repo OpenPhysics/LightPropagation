@@ -11,7 +11,7 @@
  * EMANIM's pace (π/18 axis units per 1/30 s).
  */
 
-import { BooleanProperty, EnumerationProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import { BooleanProperty, DerivedProperty, EnumerationProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import { TIME_SCALE, WAVE_SAMPLE_STEP } from "../../LightPropagationConstants.js";
 import { TimeModel } from "../TimeModel.js";
@@ -52,6 +52,9 @@ export class WaveSceneModel {
   /** Whether the superposition of the two waves is computed and shown. */
   public readonly sumEnabledProperty: BooleanProperty;
 
+  /** Whether the sum may be enabled: both waves must be on (the EMANIM rule). */
+  public readonly sumAllowedProperty: TReadOnlyProperty<boolean>;
+
   /** Show/hide the per-wave field curves (arrows keep animating when hidden). */
   public readonly componentCurvesVisibleProperty = new BooleanProperty(true);
 
@@ -80,6 +83,10 @@ export class WaveSceneModel {
 
   private _isApplyingState = false;
 
+  // True when a state Property changed since the last sampleNow(), so step()
+  // can skip resampling while paused with nothing edited.
+  private sampleDirty = false;
+
   public constructor(initialState?: PartialWaveSceneState, displayOptions?: WaveSceneDisplayOptions) {
     const state = clampWaveSceneState(mergeWaveSceneState(initialState));
 
@@ -98,6 +105,11 @@ export class WaveSceneModel {
     };
     this.wave1.enabledProperty.lazyLink(enforceSumRule);
     this.wave2.enabledProperty.lazyLink(enforceSumRule);
+
+    this.sumAllowedProperty = new DerivedProperty(
+      [this.wave1.enabledProperty, this.wave2.enabledProperty],
+      (wave1Enabled, wave2Enabled) => wave1Enabled && wave2Enabled,
+    );
 
     this.wave1Snapshot = this.createSnapshot(this.wave1);
     this.wave2Snapshot = this.createSnapshot(this.wave2);
@@ -125,6 +137,14 @@ export class WaveSceneModel {
       this.material.sameAsWave1Property,
       this.sumEnabledProperty,
     ];
+
+    // Sampling depends on exactly the serializable state (plus time), so any
+    // state change marks the buffers stale for the next step().
+    for (const stateProperty of this.stateProperties) {
+      stateProperty.lazyLink(() => {
+        this.sampleDirty = true;
+      });
+    }
 
     this.sampleNow();
   }
@@ -164,8 +184,11 @@ export class WaveSceneModel {
    */
   public step(dt: number): void {
     const multiplier = SPEED_MULTIPLIERS.get(this.timeSpeedProperty.value) ?? 1;
+    const timeBefore = this.timer.timeProperty.value;
     this.timer.step(dt * multiplier * TIME_SCALE);
-    this.sampleNow();
+    if (this.timer.timeProperty.value !== timeBefore || this.sampleDirty) {
+      this.sampleNow();
+    }
   }
 
   /** Advances time by one EMANIM frame (π/18 axis units), even while paused. */
@@ -191,6 +214,7 @@ export class WaveSceneModel {
     this.materialSnapshot.enabled = this.material.enabledProperty.value;
     this.materialSnapshot.halfLength = this.material.length / 2;
     this.sampler.sample(this.timer.timeProperty.value, this.wave1Snapshot, this.wave2Snapshot, this.materialSnapshot);
+    this.sampleDirty = false;
   }
 
   /** Applies a full physics state (used by presets and permalinks). */

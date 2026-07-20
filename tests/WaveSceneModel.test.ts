@@ -87,6 +87,18 @@ describe("WaveSceneModel", () => {
     expect(model.sumEnabledProperty.value).toBe(false);
   });
 
+  it("sumAllowedProperty is true exactly while both waves are on", () => {
+    const model = new WaveSceneModel({ wave2: { enabled: true } });
+    expect(model.sumAllowedProperty.value).toBe(true);
+    model.wave2.enabledProperty.value = false;
+    expect(model.sumAllowedProperty.value).toBe(false);
+    model.wave2.enabledProperty.value = true;
+    model.wave1.enabledProperty.value = false;
+    expect(model.sumAllowedProperty.value).toBe(false);
+    model.wave1.enabledProperty.value = true;
+    expect(model.sumAllowedProperty.value).toBe(true);
+  });
+
   it("step(dt) advances time by dt · speed · TIME_SCALE", () => {
     const model = new WaveSceneModel();
     expect(model.timer.isPlayingProperty.value).toBe(true);
@@ -115,6 +127,25 @@ describe("WaveSceneModel", () => {
     const before = model.sampler.wave1Electric.slice();
     model.wave1.amplitudeProperty.value = 10;
     model.sampleNow();
+    const after = model.sampler.wave1Electric;
+    let changed = false;
+    for (let k = 0; k < after.length; k++) {
+      if (Math.abs((after[k] ?? 0) - (before[k] ?? 0)) > 1e-6) {
+        changed = true;
+        break;
+      }
+    }
+    expect(changed).toBe(true);
+  });
+
+  it("step() while paused still picks up state edits made since the last frame", () => {
+    const model = new WaveSceneModel();
+    model.timer.isPlayingProperty.value = false;
+    model.step(1 / 60); // time does not advance while paused
+
+    const before = model.sampler.wave1Electric.slice();
+    model.wave1.amplitudeProperty.value = 10;
+    model.step(1 / 60);
     const after = model.sampler.wave1Electric;
     let changed = false;
     for (let k = 0; k < after.length; k++) {
