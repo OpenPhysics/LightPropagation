@@ -171,5 +171,10 @@
         "accessibleHelpText": "Rotate the view with the arrow keys; zoom with plus and minus."
       }
     }
+  },
+  "preferences": {
+    "title": "Simulation",
+    "wavelengthDependentAbsorption": "Wavelength-dependent absorption",
+    "wavelengthDependentAbsorptionDescription": "Absorb shorter wavelengths more strongly, using the physical Beer–Lambert law exp(−κ·Δx/ƛ). When off, absorption is wavelength-independent, exp(−κ·Δx/π), matching the original EMANIM app."
   }
 }

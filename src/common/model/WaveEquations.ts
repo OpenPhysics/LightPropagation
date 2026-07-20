@@ -22,7 +22,10 @@
  * φₐ and φ_b make Φ continuous at both interfaces.
  *
  * The decay law D = exp(−κ·Δx/π) is EMANIM's (wavelength-independent) form,
- * kept for exact parity; see doc/model.md for its relation to Beer–Lambert.
+ * kept for exact parity. When the material's wavelengthDependentAbsorption
+ * flag is set (the Preferences → Simulation toggle), the fixed length scale π
+ * is replaced by ƛ, giving the physical Beer–Lambert form D = exp(−κ·Δx/ƛ)
+ * where shorter wavelengths absorb more strongly; see doc/model.md.
  *
  * Transverse components use the EMANIM web app's sign conventions verbatim
  * (documented, not "fixed"): y is vertical, z is the other transverse axis.
@@ -52,6 +55,11 @@ export type MaterialSnapshot = {
   enabled: boolean;
   /** Half the slab length, L/2, in axis units. Slab spans ξ ∈ [−L/2, +L/2]. */
   halfLength: number;
+  /**
+   * When true, decay uses the physical Beer–Lambert length scale ƛ instead of
+   * EMANIM's fixed π (absent/false = EMANIM parity, the default).
+   */
+  wavelengthDependentAbsorption?: boolean;
 };
 
 /** Reusable output record for {@link phaseAndDecay}. */
@@ -95,6 +103,7 @@ export function phaseAndDecay(
   const n = wave.refractiveIndex;
   const kappa = wave.extinction;
   const length = 2 * material.halfLength;
+  const decayLength = material.wavelengthDependentAbsorption ? lambdaBar : Math.PI;
 
   if (xi < xiIn) {
     out.phase = vacuumPhase;
@@ -102,11 +111,11 @@ export function phaseAndDecay(
   } else if (xi < xiOut) {
     const phiA = (xiIn * (1 - n)) / lambdaBar;
     out.phase = (n * xi) / lambdaBar - omega * t + wave.phaseRadians + phiA;
-    out.decay = Math.exp((-kappa * (xi - xiIn)) / Math.PI);
+    out.decay = Math.exp((-kappa * (xi - xiIn)) / decayLength);
   } else {
     const phiB = ((n - 1) * length) / lambdaBar;
     out.phase = vacuumPhase + phiB;
-    out.decay = Math.exp((-kappa * length) / Math.PI);
+    out.decay = Math.exp((-kappa * length) / decayLength);
   }
 }
 

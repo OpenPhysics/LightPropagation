@@ -84,6 +84,21 @@ export class StringManager {
     };
   }
 
+  /** Simulation-specific preferences strings (Preferences → Simulation). */
+  public getPreferences(): {
+    readonly titleStringProperty: ReadOnlyProperty<string>;
+    readonly wavelengthDependentAbsorptionStringProperty: ReadOnlyProperty<string>;
+    readonly wavelengthDependentAbsorptionDescriptionStringProperty: ReadOnlyProperty<string>;
+  } {
+    return {
+      titleStringProperty: stringProperties.preferences.titleStringProperty,
+      wavelengthDependentAbsorptionStringProperty:
+        stringProperties.preferences.wavelengthDependentAbsorptionStringProperty,
+      wavelengthDependentAbsorptionDescriptionStringProperty:
+        stringProperties.preferences.wavelengthDependentAbsorptionDescriptionStringProperty,
+    };
+  }
+
   /**
    * Shared control-panel labels (waves, polarization, material, display,
    * camera views) used by every screen.

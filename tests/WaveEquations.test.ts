@@ -96,6 +96,21 @@ describe("phaseAndDecay", () => {
     expect(evalPhaseDecay(slab.halfLength + 5, 0, wave, slab).decay).toBeCloseTo(frozen, 12);
   });
 
+  it("wavelength-dependent absorption uses ƛ as the decay length instead of π", () => {
+    const kappa = 0.3;
+    const lambdaBar = 0.5; // w = 2, so ƛ ≠ π: the two laws must differ
+    const wave = makeWave({ extinction: kappa, reducedWavelength: lambdaBar });
+    const emanimSlab = makeSlab(); // wavelengthDependentAbsorption absent = EMANIM parity
+    const beerSlab: MaterialSnapshot = { ...makeSlab(), wavelengthDependentAbsorption: true };
+    const x = emanimSlab.halfLength + 1; // past the slab: full-length decay
+    const length = 2 * emanimSlab.halfLength;
+
+    expect(evalPhaseDecay(x, 0, wave, emanimSlab).decay).toBeCloseTo(Math.exp((-kappa * length) / Math.PI), 12);
+    expect(evalPhaseDecay(x, 0, wave, beerSlab).decay).toBeCloseTo(Math.exp((-kappa * length) / lambdaBar), 12);
+    // Shorter-scale ƛ (0.5 < π) means the Beer–Lambert law absorbs more.
+    expect(evalPhaseDecay(x, 0, wave, beerSlab).decay).toBeLessThan(evalPhaseDecay(x, 0, wave, emanimSlab).decay);
+  });
+
   it("shifts the post-slab phase by the retardation φ_b = (n−1)L/ƛ", () => {
     const slab = makeSlab();
     const n = 1.5;

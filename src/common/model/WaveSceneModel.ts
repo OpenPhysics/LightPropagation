@@ -37,6 +37,13 @@ export type WaveSceneDisplayOptions = {
   eVectorsVisible?: boolean;
   /** Initial visibility of the magnetic-field curves. */
   bFieldVisible?: boolean;
+  /**
+   * The "Wavelength-dependent absorption" preference (Beer–Lambert decay
+   * instead of EMANIM's wavelength-independent law). Injected as a Property
+   * so this core stays free of preferences/query-parameter imports; omitted
+   * (e.g. in unit tests and on screens without absorption) means EMANIM parity.
+   */
+  wavelengthDependentAbsorptionProperty?: TReadOnlyProperty<boolean>;
 };
 
 export class WaveSceneModel {
@@ -81,6 +88,8 @@ export class WaveSceneModel {
   private readonly wave2Snapshot: SampledWave;
   private readonly materialSnapshot: MaterialSnapshot;
 
+  private readonly wavelengthDependentAbsorptionProperty: TReadOnlyProperty<boolean> | undefined;
+
   private _isApplyingState = false;
 
   // True when a state Property changed since the last sampleNow(), so step()
@@ -113,7 +122,12 @@ export class WaveSceneModel {
 
     this.wave1Snapshot = this.createSnapshot(this.wave1);
     this.wave2Snapshot = this.createSnapshot(this.wave2);
-    this.materialSnapshot = { enabled: false, halfLength: 0 };
+    this.materialSnapshot = { enabled: false, halfLength: 0, wavelengthDependentAbsorption: false };
+
+    this.wavelengthDependentAbsorptionProperty = displayOptions?.wavelengthDependentAbsorptionProperty;
+    this.wavelengthDependentAbsorptionProperty?.lazyLink(() => {
+      this.sampleDirty = true;
+    });
 
     this.stateProperties = [
       this.wave1.enabledProperty,
@@ -213,6 +227,7 @@ export class WaveSceneModel {
     );
     this.materialSnapshot.enabled = this.material.enabledProperty.value;
     this.materialSnapshot.halfLength = this.material.length / 2;
+    this.materialSnapshot.wavelengthDependentAbsorption = this.wavelengthDependentAbsorptionProperty?.value ?? false;
     this.sampler.sample(this.timer.timeProperty.value, this.wave1Snapshot, this.wave2Snapshot, this.materialSnapshot);
     this.sampleDirty = false;
   }
