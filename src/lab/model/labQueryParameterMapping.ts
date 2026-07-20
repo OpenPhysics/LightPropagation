@@ -8,7 +8,13 @@
  *     clamped/snapped to the slider grid. Any explicit override makes the
  *     preset selector show "custom".
  *   - queryStringFromState(): the inverse for the "Copy link" button —
- *     serializes only the parameters that differ from the defaults.
+ *     clamps the state, then serializes only the parameters that differ from
+ *     the defaults, so every emitted link parses back to exactly that state.
+ *
+ * Known lossy case (intentional): a disabled wave serializes as
+ * `waveN=off`, dropping which polarization was selected while it was off —
+ * the polarization of an off wave has no physical effect, and the parameter
+ * schema (one value per wave) mirrors EMANIM's.
  *
  * The QueryStringMachine declarations live in
  * src/preferences/lightPropagationQueryParameters.ts.
@@ -134,9 +140,12 @@ function waveQueryValue(wave: WaveState): WaveQueryValue {
 /**
  * Serializes a scene state as a permalink query string (no leading "?"),
  * containing only the parameters that differ from the defaults. The empty
- * string means the state IS the default.
+ * string means the state IS the default. The state is clamped first, so the
+ * emitted link always parses back to the same (valid) state — e.g. a sum
+ * flag left on while a wave is off is dropped rather than serialized.
  */
-export function queryStringFromState(state: WaveSceneState): string {
+export function queryStringFromState(providedState: WaveSceneState): string {
+  const state = clampWaveSceneState(providedState);
   const defaults = defaultWaveSceneState();
   const parts: string[] = [];
   const addIfChanged = (

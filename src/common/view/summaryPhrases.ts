@@ -39,6 +39,17 @@ export function booleanPhraseProperty(
   );
 }
 
+/**
+ * "Control label, scope" accessible name (e.g. "Amplitude, Wave 1") —
+ * disambiguates identically labeled controls that appear once per wave.
+ */
+export function scopedNameProperty(
+  labelProperty: TReadOnlyProperty<string>,
+  scopeProperty: TReadOnlyProperty<string>,
+): TReadOnlyProperty<string> {
+  return new DerivedProperty([labelProperty, scopeProperty], (label, scope) => `${label}, ${scope}`);
+}
+
 /** Localized "animating" / "paused" phrase for the play state. */
 export function motionStatePhraseProperty(isPlayingProperty: TReadOnlyProperty<boolean>): TReadOnlyProperty<string> {
   const common = StringManager.getInstance().getCommonA11yStrings();

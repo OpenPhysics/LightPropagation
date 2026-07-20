@@ -12,7 +12,7 @@
  * of the scene.
  */
 
-import { DerivedProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import type { TReadOnlyProperty } from "scenerystack/axon";
 import { type Node, type ProfileColorProperty, Text, VBox } from "scenerystack/scenery";
 import { NumberControl, PhetFont } from "scenerystack/scenery-phet";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -29,6 +29,7 @@ import {
   CONTROL_TITLE_FONT,
   SIM_NUMBER_CONTROL_OPTIONS,
 } from "./LightPropagationControlOptions.js";
+import { scopedNameProperty } from "./summaryPhrases.js";
 import { ThemedCheckbox } from "./ThemedCheckbox.js";
 
 const WAVE_LABEL_FONT = new PhetFont({ size: 13, weight: "bold" });
@@ -43,14 +44,6 @@ export type MaterialControlNodeOptions = {
   showExtinction?: boolean;
   showSameAsWave1?: boolean;
 };
-
-/** "n/κ control title, wave label" — disambiguates the two identically titled rows for screen readers. */
-function waveScopedName(
-  titleProperty: TReadOnlyProperty<string>,
-  waveLabelProperty: TReadOnlyProperty<string>,
-): TReadOnlyProperty<string> {
-  return new DerivedProperty([titleProperty, waveLabelProperty], (title, wave) => `${title}, ${wave}`);
-}
 
 export class MaterialControlNode extends VBox {
   /** Interactive children in traversal order, for the screen's pdomOrder. */
@@ -148,7 +141,7 @@ export class MaterialControlNode extends VBox {
             REFRACTIVE_INDEX_RANGE,
             {
               ...indexControlOptions,
-              accessibleName: waveScopedName(controls.material.refractiveIndexStringProperty, row.labelProperty),
+              accessibleName: scopedNameProperty(controls.material.refractiveIndexStringProperty, row.labelProperty),
             },
           );
           children.push(nControl);
@@ -161,7 +154,7 @@ export class MaterialControlNode extends VBox {
             EXTINCTION_RANGE,
             {
               ...indexControlOptions,
-              accessibleName: waveScopedName(controls.material.extinctionStringProperty, row.labelProperty),
+              accessibleName: scopedNameProperty(controls.material.extinctionStringProperty, row.labelProperty),
             },
           );
           children.push(kappaControl);

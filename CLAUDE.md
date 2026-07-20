@@ -87,7 +87,6 @@ npm run lint && npm run check && npm run build && npm test
 | `npm run lint` / `npm run fix` | Biome check / auto-fix |
 | `npm test` | Vitest unit tests |
 | `npm run icons` | Regenerate PWA icons |
-| `npm run rename` | Fork/rename scaffold (from template lineage) |
 
 ## Development notes
 

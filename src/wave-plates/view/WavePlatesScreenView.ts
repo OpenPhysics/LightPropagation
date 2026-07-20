@@ -73,7 +73,8 @@ export class WavePlatesScreenView extends WaveScreenView {
     const sumCheckbox = new ThemedCheckbox(
       scene.sumEnabledProperty,
       new Text(controls.sumStringProperty, CONTROL_TEXT_OPTIONS),
-      { accessibleName: controls.sumStringProperty },
+      // The sum is only meaningful while both waves are on (the EMANIM rule).
+      { enabledProperty: scene.sumAllowedProperty, accessibleName: controls.sumStringProperty },
     );
 
     // Exact plate presets (see WavePlatesModel for the on-grid values).

@@ -71,6 +71,14 @@ describe("queryStringFromState", () => {
     expect(queryStringFromState(defaultWaveSceneState())).toBe("");
   });
 
+  it("clamps before serializing: a sum flag left on while a wave is off is dropped", () => {
+    // The UI blocks this combination, but the raw model state can hold it;
+    // the emitted link must parse back to the same (valid) state.
+    const state = defaultWaveSceneState();
+    state.sumEnabled = true; // wave 2 is off by default
+    expect(queryStringFromState(state)).not.toContain("sum=");
+  });
+
   it("serializes only the non-default parameters", () => {
     const { state } = stateFromQueryParameters({ wave2: "horizontal", sum: true, phase: -90 });
     expect(queryStringFromState(state)).toBe("wave2=horizontal&phase=-90&sum=true");

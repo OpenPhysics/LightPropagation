@@ -83,7 +83,8 @@ export class LabScreenView extends WaveScreenView {
     const sumCheckbox = new ThemedCheckbox(
       scene.sumEnabledProperty,
       new Text(controls.sumStringProperty, CONTROL_TEXT_OPTIONS),
-      { accessibleName: controls.sumStringProperty },
+      // The sum is only meaningful while both waves are on (the EMANIM rule).
+      { enabledProperty: scene.sumAllowedProperty, accessibleName: controls.sumStringProperty },
     );
 
     const materialControl = new MaterialControlNode(scene.material, {
@@ -103,8 +104,32 @@ export class LabScreenView extends WaveScreenView {
     });
 
     // "Copy link": puts a permalink for the current configuration on the
-    // clipboard; the label flips to a brief confirmation.
+    // clipboard; the label flips to a brief confirmation on success only.
     const linkCopiedProperty = new BooleanProperty(false);
+    const showLinkCopied = (): void => {
+      linkCopiedProperty.value = true;
+      stepTimer.setTimeout(() => {
+        linkCopiedProperty.value = false;
+      }, 2000);
+    };
+    // Selection + execCommand fallback for insecure contexts and browsers
+    // where the async Clipboard API is unavailable or permission is denied.
+    const fallbackCopy = (text: string): boolean => {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
+      document.body.appendChild(textArea);
+      textArea.select();
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      }
+      document.body.removeChild(textArea);
+      return copied;
+    };
     const copyLinkButton = new RectangularPushButton({
       ...FLAT_RECTANGULAR_BUTTON_OPTIONS,
       content: new Text(
@@ -115,12 +140,15 @@ export class LabScreenView extends WaveScreenView {
       listener: () => {
         const query = queryStringFromState(scene.getState());
         const url = `${window.location.origin}${window.location.pathname}${query ? `?${query}` : ""}`;
-        navigator.clipboard?.writeText(url).then(() => {
-          linkCopiedProperty.value = true;
-          stepTimer.setTimeout(() => {
-            linkCopiedProperty.value = false;
-          }, 2000);
-        });
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(url).then(showLinkCopied, () => {
+            if (fallbackCopy(url)) {
+              showLinkCopied();
+            }
+          });
+        } else if (fallbackCopy(url)) {
+          showLinkCopied();
+        }
       },
       accessibleName: controls.copyLinkStringProperty,
     });
