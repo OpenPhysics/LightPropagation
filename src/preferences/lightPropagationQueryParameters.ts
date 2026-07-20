@@ -150,6 +150,18 @@ const lightPropagationQueryParameters = QueryStringMachine.getAll({
     isValidValue: (value: number) => value >= 0 && value <= 1,
     public: true,
   },
+
+  /**
+   * Uses the physical Beer–Lambert absorption law D = exp(−κ·Δx/ƛ), where
+   * shorter wavelengths absorb more strongly, instead of EMANIM's
+   * wavelength-independent D = exp(−κ·Δx/π). Also a Preferences →
+   * Simulation toggle; this parameter sets its startup value.
+   */
+  wavelengthDependentAbsorption: {
+    type: "boolean",
+    defaultValue: false,
+    public: true,
+  },
 });
 
 /**

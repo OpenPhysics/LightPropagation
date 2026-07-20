@@ -171,5 +171,10 @@
         "accessibleHelpText": "Gira la vista con las teclas de flecha; acerca o aleja con más y menos."
       }
     }
+  },
+  "preferences": {
+    "title": "Simulación",
+    "wavelengthDependentAbsorption": "Absorción dependiente de la longitud de onda",
+    "wavelengthDependentAbsorptionDescription": "Absorbe con más intensidad las longitudes de onda más cortas, usando la ley física de Beer–Lambert exp(−κ·Δx/ƛ). Cuando está desactivada, la absorción es independiente de la longitud de onda, exp(−κ·Δx/π), igual que la aplicación original EMANIM."
   }
 }

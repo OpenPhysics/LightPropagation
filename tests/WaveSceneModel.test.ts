@@ -6,6 +6,7 @@
  * time-speed multiplier.
  */
 
+import { BooleanProperty } from "scenerystack/axon";
 import { TimeSpeed } from "scenerystack/scenery-phet";
 import { describe, expect, it } from "vitest";
 import { WaveSceneModel } from "../src/common/model/WaveSceneModel.js";
@@ -128,6 +129,29 @@ describe("WaveSceneModel", () => {
     model.wave1.amplitudeProperty.value = 10;
     model.sampleNow();
     const after = model.sampler.wave1Electric;
+    let changed = false;
+    for (let k = 0; k < after.length; k++) {
+      if (Math.abs((after[k] ?? 0) - (before[k] ?? 0)) > 1e-6) {
+        changed = true;
+        break;
+      }
+    }
+    expect(changed).toBe(true);
+  });
+
+  it("toggling wavelength-dependent absorption resamples the buffers", () => {
+    const absorptionPref = new BooleanProperty(false);
+    const model = new WaveSceneModel(
+      // A slab with κ > 0 and ƛ ≠ π (w = 2) so the two decay laws differ.
+      { wave1: { wavelengthNumber: 2 }, material: { enabled: true, kappa1: 0.3 } },
+      { wavelengthDependentAbsorptionProperty: absorptionPref },
+    );
+    const before = model.sampler.wave1Electric.slice();
+
+    absorptionPref.value = true;
+    model.step(0); // dt = 0: time does not advance, but the dirty flag forces a resample
+    const after = model.sampler.wave1Electric;
+
     let changed = false;
     for (let k = 0; k < after.length; k++) {
       if (Math.abs((after[k] ?? 0) - (before[k] ?? 0)) > 1e-6) {

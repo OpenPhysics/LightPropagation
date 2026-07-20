@@ -114,7 +114,10 @@ The Wave Plates screen's preset buttons use exact on-grid values at w = 4 (ƛ = 
   kept for exact parity with EMANIM. The physical Beer–Lambert/complex-index law would be
   D = exp(−κ·ω·Δx) = exp(−κ·Δx/ƛ), i.e. EMANIM's form with the fixed length scale π in place of the
   wavelength-dependent ƛ. Qualitatively nothing changes; quantitatively, absorption here does not
-  strengthen at shorter wavelengths.
+  strengthen at shorter wavelengths. The **"Wavelength-dependent absorption"** toggle in
+  Preferences → Simulation (also the `wavelengthDependentAbsorption` query parameter, default off)
+  switches the length scale from π to ƛ, giving the Beer–Lambert law so that shorter wavelengths
+  absorb more strongly. It is observable only where κ > 0 — the Polarization and Lab screens.
 - **No interface reflections**: Fresnel reflection and transmission losses at the slab faces are
   ignored — waves enter and exit with unchanged amplitude (apart from κ decay).
 - **B not n-scaled**: inside a medium the physical B amplitude is n·E/c; the sim draws B with the
