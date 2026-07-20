@@ -35,6 +35,11 @@ export class WavePlatesModel implements TModel {
   /**
    * The plate's retardation Δφ = (n₁ − n₂)·L/ƛ in radians; 0 while the plate
    * is out of the scene.
+   *
+   * ƛ is read from wave 1 only. That is valid because this screen models ONE
+   * wave split into two components: the view hides both wavelength controls,
+   * so both waves stay locked at the initial w = 4. If this screen ever gets
+   * a wavelength control, drive both waves' wavelengths from it together.
    */
   public readonly retardationRadiansProperty: TReadOnlyProperty<number>;
 

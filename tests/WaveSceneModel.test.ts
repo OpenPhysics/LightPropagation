@@ -53,6 +53,29 @@ describe("WaveSceneModel", () => {
     expect(model.timer.timeProperty.value).toBe(0);
   });
 
+  it("applying a state with sameAsWave1 set snaps wave 2's n/κ to wave 1's", () => {
+    const model = new WaveSceneModel();
+    const state = defaultWaveSceneState();
+    state.material = {
+      ...state.material,
+      enabled: true,
+      sameAsWave1: true,
+      n1: 1.5,
+      n2: 1.9,
+      kappa1: 0.2,
+      kappa2: 0.7,
+    };
+    model.applyState(state);
+    // clampWaveSceneState enforces the coupling, so the divergent n2/kappa2 are dropped…
+    expect(model.material.n2Property.value).toBe(1.5);
+    expect(model.material.kappa2Property.value).toBe(0.2);
+    expect(model.material.sameAsWave1Property.value).toBe(true);
+    // …and a second apply of the model's own state is a no-op (idempotent round-trip).
+    const roundTripped = model.getState();
+    model.applyState(roundTripped);
+    expect(model.getState()).toEqual(roundTripped);
+  });
+
   it("sameAsWave1 copies wave 1's n/κ and tracks further wave 1 edits", () => {
     const model = new WaveSceneModel();
     model.material.n1Property.value = 1.5;

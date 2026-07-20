@@ -23,8 +23,12 @@ import {
 export type SampledWave = WaveSnapshot & { enabled: boolean };
 
 export class FieldSampler {
-  /** x-coordinate of each grid point, filled once at construction. */
+  /** x-coordinate of each grid point (float32, for the 3D view), filled once at construction. */
   public readonly xGrid: Float32Array;
+
+  // The same grid at full precision — the single source of the grid formula;
+  // the physics is evaluated at these x values, xGrid is their float32 view.
+  private readonly xGridExact: Float64Array;
 
   public readonly wave1Electric: Float32Array;
   public readonly wave2Electric: Float32Array;
@@ -37,9 +41,11 @@ export class FieldSampler {
   private readonly scratchB: FieldPair = { y: 0, z: 0 };
 
   public constructor() {
+    this.xGridExact = new Float64Array(WAVE_SAMPLE_COUNT);
     this.xGrid = new Float32Array(WAVE_SAMPLE_COUNT);
     for (let i = 0; i < WAVE_SAMPLE_COUNT; i++) {
-      this.xGrid[i] = -WAVE_AXIS_HALF_LENGTH + i * WAVE_SAMPLE_STEP;
+      this.xGridExact[i] = -WAVE_AXIS_HALF_LENGTH + i * WAVE_SAMPLE_STEP;
+      this.xGrid[i] = this.xGridExact[i] ?? 0;
     }
     const pairCount = 2 * WAVE_SAMPLE_COUNT;
     this.wave1Electric = new Float32Array(pairCount);
@@ -76,7 +82,7 @@ export class FieldSampler {
       return;
     }
     for (let i = 0; i < WAVE_SAMPLE_COUNT; i++) {
-      const x = -WAVE_AXIS_HALF_LENGTH + i * WAVE_SAMPLE_STEP;
+      const x = this.xGridExact[i] ?? 0;
       fieldComponents(x, t, wave, material, this.scratchE);
       magneticFromElectric(this.scratchE.y, this.scratchE.z, wave.direction, this.scratchB);
       electric[2 * i] = this.scratchE.y;

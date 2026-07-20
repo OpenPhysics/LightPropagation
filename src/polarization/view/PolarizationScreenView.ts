@@ -32,7 +32,6 @@ export class PolarizationScreenView extends WaveScreenView {
   public constructor(model: PolarizationModel, options?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getPolarizationA11yStrings();
-    const common = strings.getCommonA11yStrings();
     const controls = strings.getControlsStrings();
 
     super(model, {
@@ -50,7 +49,6 @@ export class PolarizationScreenView extends WaveScreenView {
       titleStringProperty: controls.wave1StringProperty,
       titleColorProperty: LightPropagationColors.wave1ColorProperty,
       showWavelength: false,
-      accessibleNames: {},
     });
 
     const wave2Control = new WaveControlNode(scene.wave2, {
@@ -58,7 +56,6 @@ export class PolarizationScreenView extends WaveScreenView {
       titleColorProperty: LightPropagationColors.wave2ColorProperty,
       showWavelength: false,
       showPhase: true,
-      accessibleNames: {},
     });
 
     // Both waves share one wavelength; the model keeps wave 2 in sync.
@@ -98,14 +95,6 @@ export class PolarizationScreenView extends WaveScreenView {
     const viewControl = new ViewControlNode(scene, this.camera, {
       showBFieldCheckbox: false,
       showCurveCheckboxes: false,
-      accessibleNames: {
-        presets: {
-          nice: common.cameraPresets.niceStringProperty,
-          side: common.cameraPresets.sideStringProperty,
-          front: common.cameraPresets.frontStringProperty,
-          back: common.cameraPresets.backStringProperty,
-        },
-      },
     });
 
     const waveColumn = new VBox({

@@ -19,8 +19,12 @@ import { ThemedCheckbox } from "./ThemedCheckbox.js";
 import type { CameraPreset, WaveSceneCamera } from "./WaveSceneCamera.js";
 
 export type ViewControlNodeOptions = {
-  /** a11y names for the rows that are shown. */
-  accessibleNames: {
+  /**
+   * a11y name overrides for the rows that are shown. Camera-preset buttons
+   * default to the shared a11y.common.cameraPresets strings, every other row
+   * to its visible label.
+   */
+  accessibleNames?: {
     presets?: Partial<Record<CameraPreset, TReadOnlyProperty<string>>>;
     parallelProjection?: TReadOnlyProperty<string>;
     eVectors?: TReadOnlyProperty<string>;
@@ -37,33 +41,38 @@ export class ViewControlNode extends VBox {
   /** Interactive children in traversal order, for the screen's pdomOrder. */
   public readonly interactiveNodes: Node[] = [];
 
-  public constructor(model: WaveSceneModel, camera: WaveSceneCamera, providedOptions: ViewControlNodeOptions) {
+  public constructor(model: WaveSceneModel, camera: WaveSceneCamera, providedOptions?: ViewControlNodeOptions) {
     const options = {
+      accessibleNames: {},
       showBFieldCheckbox: true,
       showCurveCheckboxes: true,
       showSumCurveCheckbox: false,
       ...providedOptions,
     };
-    const controls = StringManager.getInstance().getControlsStrings();
+    const strings = StringManager.getInstance();
+    const controls = strings.getControlsStrings();
+    const commonA11y = strings.getCommonA11yStrings();
     const children: Node[] = [];
     const interactiveNodes: Node[] = [];
 
     children.push(new Text(controls.views.titleStringProperty, CONTROL_TITLE_OPTIONS));
 
-    const presetEntries: Array<[CameraPreset, TReadOnlyProperty<string>]> = [
-      ["nice", controls.views.niceStringProperty],
-      ["side", controls.views.sideStringProperty],
-      ["front", controls.views.frontStringProperty],
-      ["back", controls.views.backStringProperty],
+    // Visible label and default accessible name per camera preset; the terse
+    // button labels ("Nice") get the more descriptive shared a11y names.
+    const presetEntries: Array<[CameraPreset, TReadOnlyProperty<string>, TReadOnlyProperty<string>]> = [
+      ["nice", controls.views.niceStringProperty, commonA11y.cameraPresets.niceStringProperty],
+      ["side", controls.views.sideStringProperty, commonA11y.cameraPresets.sideStringProperty],
+      ["front", controls.views.frontStringProperty, commonA11y.cameraPresets.frontStringProperty],
+      ["back", controls.views.backStringProperty, commonA11y.cameraPresets.backStringProperty],
     ];
     const presetButtons = presetEntries.map(
-      ([preset, label]) =>
+      ([preset, label, defaultAccessibleName]) =>
         new RectangularPushButton({
           ...FLAT_RECTANGULAR_BUTTON_OPTIONS,
           content: new Text(label, { font: CONTROL_FONT, fill: LIGHT_SURFACE_TEXT_FILL, maxWidth: 60 }),
           baseColor: LightPropagationColors.controlSurfaceColorProperty,
           listener: () => camera.setPreset(preset),
-          accessibleName: options.accessibleNames.presets?.[preset] ?? label,
+          accessibleName: options.accessibleNames.presets?.[preset] ?? defaultAccessibleName,
         }),
     );
     // 2×2 grid of preset buttons.

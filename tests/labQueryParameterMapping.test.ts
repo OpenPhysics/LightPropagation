@@ -11,7 +11,11 @@
 import { describe, expect, it } from "vitest";
 import { defaultWaveSceneState } from "../src/common/model/WaveSceneState.js";
 import { getLabPresetState } from "../src/lab/model/LabPresets.js";
-import { queryStringFromState, stateFromQueryParameters } from "../src/lab/model/labQueryParameterMapping.js";
+import {
+  permalinkQueryString,
+  queryStringFromState,
+  stateFromQueryParameters,
+} from "../src/lab/model/labQueryParameterMapping.js";
 
 describe("stateFromQueryParameters", () => {
   it("returns the defaults and the vertical selection when nothing is provided", () => {
@@ -31,6 +35,21 @@ describe("stateFromQueryParameters", () => {
     expect(state.material.enabled).toBe(true); // from the preset
     expect(state.material.kappa1).toBe(0.5); // the override wins
     expect(selection).toBe("custom");
+  });
+
+  it("keeps the preset selected when overrides are no-ops", () => {
+    // kappa1=0.25 is exactly the Absorption preset's value.
+    const { selection } = stateFromQueryParameters({ preset: "absorption", kappa1: 0.25 });
+    expect(selection).toBe("absorption");
+    // Without a preset, overrides that reproduce the defaults keep "vertical".
+    const { selection: verticalSelection } = stateFromQueryParameters({ wave1: "vertical", amplitude1: 5 });
+    expect(verticalSelection).toBe("vertical");
+  });
+
+  it("locks wave 2's n/κ to wave 1's while sameAsWave1 is set", () => {
+    const { state } = stateFromQueryParameters({ sameAsWave1: true, n1: 1.5, n2: 1.9, kappa1: 0.2, kappa2: 0.7 });
+    expect(state.material.n2).toBe(1.5);
+    expect(state.material.kappa2).toBe(0.2);
   });
 
   it('wave parameters set enabled and polarization; "off" disables without touching polarization', () => {
@@ -82,6 +101,26 @@ describe("queryStringFromState", () => {
   it("serializes only the non-default parameters", () => {
     const { state } = stateFromQueryParameters({ wave2: "horizontal", sum: true, phase: -90 });
     expect(queryStringFromState(state)).toBe("wave2=horizontal&phase=-90&sum=true");
+  });
+
+  it("permalinkQueryString preserves foreign parameters and replaces Lab state ones", () => {
+    const { state } = stateFromQueryParameters({ wave2: "horizontal", sum: true });
+    const query = permalinkQueryString(
+      "?locale=fr&preset=absorption&kappa1=0.5&wavelengthDependentAbsorption=true",
+      state,
+    );
+    const params = new URLSearchParams(query);
+    expect(params.get("locale")).toBe("fr"); // foreign parameter untouched
+    expect(params.get("wavelengthDependentAbsorption")).toBe("true"); // physics preference untouched
+    expect(params.get("preset")).toBeNull(); // stale Lab parameters replaced…
+    expect(params.get("kappa1")).toBeNull();
+    expect(params.get("wave2")).toBe("horizontal"); // …by the current state
+    expect(params.get("sum")).toBe("true");
+  });
+
+  it("permalinkQueryString of the default state with no foreign parameters is empty", () => {
+    expect(permalinkQueryString("", defaultWaveSceneState())).toBe("");
+    expect(permalinkQueryString("?preset=standingWave", defaultWaveSceneState())).toBe("");
   });
 
   it("round-trips: parsing a serialized state reproduces it", () => {

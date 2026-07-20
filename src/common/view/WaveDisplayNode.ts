@@ -85,8 +85,12 @@ class DynamicCurve {
   private readonly positions: Float32Array;
   private readonly positionAttribute: THREE.BufferAttribute;
 
-  public constructor(colorProperty: ProfileColorProperty) {
+  public constructor(colorProperty: ProfileColorProperty, xGrid: Float32Array) {
     this.positions = new Float32Array(WAVE_SAMPLE_COUNT * 3);
+    // x never changes; update() rewrites only the transverse (y, z) components.
+    for (let i = 0; i < WAVE_SAMPLE_COUNT; i++) {
+      this.positions[3 * i] = xGrid[i] ?? 0;
+    }
     this.positionAttribute = new THREE.BufferAttribute(this.positions, 3);
     this.positionAttribute.setUsage(THREE.DynamicDrawUsage);
     const geometry = new THREE.BufferGeometry();
@@ -95,9 +99,8 @@ class DynamicCurve {
     this.line.frustumCulled = false;
   }
 
-  public update(xGrid: Float32Array, pairs: Float32Array): void {
+  public update(pairs: Float32Array): void {
     for (let i = 0; i < WAVE_SAMPLE_COUNT; i++) {
-      this.positions[3 * i] = xGrid[i] ?? 0;
       this.positions[3 * i + 1] = pairs[2 * i] ?? 0;
       this.positions[3 * i + 2] = pairs[2 * i + 1] ?? 0;
     }
@@ -259,12 +262,13 @@ export class WaveDisplayNode extends Node {
   }
 
   private buildCurves(scene: THREE.Scene): void {
-    this.wave1Curve = new DynamicCurve(LightPropagationColors.wave1ColorProperty);
-    this.wave2Curve = new DynamicCurve(LightPropagationColors.wave2ColorProperty);
-    this.sumCurve = new DynamicCurve(LightPropagationColors.superpositionColorProperty);
-    this.wave1BCurve = new DynamicCurve(LightPropagationColors.bField1ColorProperty);
-    this.wave2BCurve = new DynamicCurve(LightPropagationColors.bField2ColorProperty);
-    this.sumBCurve = new DynamicCurve(LightPropagationColors.bFieldSumColorProperty);
+    const xGrid = this.model.sampler.xGrid;
+    this.wave1Curve = new DynamicCurve(LightPropagationColors.wave1ColorProperty, xGrid);
+    this.wave2Curve = new DynamicCurve(LightPropagationColors.wave2ColorProperty, xGrid);
+    this.sumCurve = new DynamicCurve(LightPropagationColors.superpositionColorProperty, xGrid);
+    this.wave1BCurve = new DynamicCurve(LightPropagationColors.bField1ColorProperty, xGrid);
+    this.wave2BCurve = new DynamicCurve(LightPropagationColors.bField2ColorProperty, xGrid);
+    this.sumBCurve = new DynamicCurve(LightPropagationColors.bFieldSumColorProperty, xGrid);
     for (const curve of [
       this.wave1Curve,
       this.wave2Curve,
@@ -441,22 +445,22 @@ export class WaveDisplayNode extends Node {
     this.sumBCurve.line.visible = bOn && sumOn && sumCurveOn;
 
     if (this.wave1Curve.line.visible) {
-      this.wave1Curve.update(sampler.xGrid, sampler.wave1Electric);
+      this.wave1Curve.update(sampler.wave1Electric);
     }
     if (this.wave2Curve.line.visible) {
-      this.wave2Curve.update(sampler.xGrid, sampler.wave2Electric);
+      this.wave2Curve.update(sampler.wave2Electric);
     }
     if (this.sumCurve.line.visible) {
-      this.sumCurve.update(sampler.xGrid, sampler.sumElectric);
+      this.sumCurve.update(sampler.sumElectric);
     }
     if (this.wave1BCurve.line.visible) {
-      this.wave1BCurve.update(sampler.xGrid, sampler.wave1Magnetic);
+      this.wave1BCurve.update(sampler.wave1Magnetic);
     }
     if (this.wave2BCurve.line.visible) {
-      this.wave2BCurve.update(sampler.xGrid, sampler.wave2Magnetic);
+      this.wave2BCurve.update(sampler.wave2Magnetic);
     }
     if (this.sumBCurve.line.visible) {
-      this.sumBCurve.update(sampler.xGrid, sampler.sumMagnetic);
+      this.sumBCurve.update(sampler.sumMagnetic);
     }
 
     for (const [endIndex, sampleIndex] of [LEFT_END_INDEX, RIGHT_END_INDEX].entries()) {

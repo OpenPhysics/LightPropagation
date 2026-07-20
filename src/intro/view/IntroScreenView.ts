@@ -23,7 +23,6 @@ export class IntroScreenView extends WaveScreenView {
   public constructor(model: IntroModel, options?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getIntroA11yStrings();
-    const common = strings.getCommonA11yStrings();
     const controls = strings.getControlsStrings();
 
     super(model, {
@@ -36,19 +35,9 @@ export class IntroScreenView extends WaveScreenView {
     const waveControl = new WaveControlNode(model.scene.wave1, {
       titleStringProperty: controls.wave1StringProperty,
       titleColorProperty: LightPropagationColors.wave1ColorProperty,
-      accessibleNames: {},
     });
 
-    const viewControl = new ViewControlNode(model.scene, this.camera, {
-      accessibleNames: {
-        presets: {
-          nice: common.cameraPresets.niceStringProperty,
-          side: common.cameraPresets.sideStringProperty,
-          front: common.cameraPresets.frontStringProperty,
-          back: common.cameraPresets.backStringProperty,
-        },
-      },
-    });
+    const viewControl = new ViewControlNode(model.scene, this.camera);
 
     const panelStack = new VBox({
       children: [new LightPropagationPanel(waveControl), new LightPropagationPanel(viewControl)],
