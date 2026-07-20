@@ -124,31 +124,20 @@ export class WaveSceneModel {
     this.wave2Snapshot = this.createSnapshot(this.wave2);
     this.materialSnapshot = { enabled: false, halfLength: 0, wavelengthDependentAbsorption: false };
 
+    // Never unlinked: this class has no dispose() (screen models live for the
+    // sim's lifetime), so a scene constructed with an injected preference
+    // Property is retained by it — see the memory-leak test suite.
     this.wavelengthDependentAbsorptionProperty = displayOptions?.wavelengthDependentAbsorptionProperty;
     this.wavelengthDependentAbsorptionProperty?.lazyLink(() => {
       this.sampleDirty = true;
     });
 
+    // Each part owns its own list (next to the Properties it mirrors);
+    // sumEnabled is the only state Property living directly on this class.
     this.stateProperties = [
-      this.wave1.enabledProperty,
-      this.wave1.polarizationProperty,
-      this.wave1.amplitudeProperty,
-      this.wave1.wavelengthNumberProperty,
-      this.wave1.phaseDegreesProperty,
-      this.wave1.reversedProperty,
-      this.wave2.enabledProperty,
-      this.wave2.polarizationProperty,
-      this.wave2.amplitudeProperty,
-      this.wave2.wavelengthNumberProperty,
-      this.wave2.phaseDegreesProperty,
-      this.wave2.reversedProperty,
-      this.material.enabledProperty,
-      this.material.lengthNumberProperty,
-      this.material.n1Property,
-      this.material.kappa1Property,
-      this.material.n2Property,
-      this.material.kappa2Property,
-      this.material.sameAsWave1Property,
+      ...this.wave1.stateProperties,
+      ...this.wave2.stateProperties,
+      ...this.material.stateProperties,
       this.sumEnabledProperty,
     ];
 
@@ -163,17 +152,21 @@ export class WaveSceneModel {
     this.sampleNow();
   }
 
+  // Allocates a wave's reusable snapshot record; n/κ start at vacuum values
+  // and every field is refreshed by the sampleNow() at the end of construction.
   private createSnapshot(wave: EMWave): SampledWave {
-    return {
-      enabled: wave.enabledProperty.value,
-      polarization: wave.polarizationProperty.value,
-      amplitude: wave.amplitudeProperty.value,
-      reducedWavelength: wave.reducedWavelength,
-      phaseRadians: (wave.phaseDegreesProperty.value * Math.PI) / 180,
-      direction: wave.reversedProperty.value ? -1 : 1,
+    const snapshot: SampledWave = {
+      enabled: false,
+      polarization: "vertical",
+      amplitude: 0,
+      reducedWavelength: 1,
+      phaseRadians: 0,
+      direction: 1,
       refractiveIndex: 1,
       extinction: 0,
     };
+    this.refreshSnapshot(snapshot, wave, 1, 0);
+    return snapshot;
   }
 
   private refreshSnapshot(snapshot: SampledWave, wave: EMWave, n: number, kappa: number): void {
@@ -181,7 +174,7 @@ export class WaveSceneModel {
     snapshot.polarization = wave.polarizationProperty.value;
     snapshot.amplitude = wave.amplitudeProperty.value;
     snapshot.reducedWavelength = wave.reducedWavelength;
-    snapshot.phaseRadians = (wave.phaseDegreesProperty.value * Math.PI) / 180;
+    snapshot.phaseRadians = wave.phaseRadians;
     snapshot.direction = wave.reversedProperty.value ? -1 : 1;
     snapshot.refractiveIndex = n;
     snapshot.extinction = kappa;

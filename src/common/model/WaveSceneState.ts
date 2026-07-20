@@ -139,22 +139,51 @@ function clampExtinction(value: number): number {
 
 /**
  * Returns a copy of `state` with every numeric field clamped to its slider
- * range and snapped to the slider step (ints for w/m, 0.05 for n/κ, 10° for δ).
- * Used to validate preset tables and permalink query parameters.
+ * range and snapped to the slider step (ints for w/m, 0.05 for n/κ, 10° for δ),
+ * and the cross-field rules enforced (sum off when a wave is off; wave 2's n/κ
+ * locked to wave 1's while sameAsWave1 is set). Used to validate preset tables
+ * and permalink query parameters; a clamped state applies losslessly.
  */
 export function clampWaveSceneState(state: WaveSceneState): WaveSceneState {
+  const n1 = clampIndex(state.material.n1);
+  const kappa1 = clampExtinction(state.material.kappa1);
   return {
     wave1: clampWaveState(state.wave1),
     wave2: clampWaveState(state.wave2),
     material: {
       ...state.material,
       lengthNumber: clampToStep(state.material.lengthNumber, MATERIAL_LENGTH_RANGE.min, MATERIAL_LENGTH_RANGE.max, 1),
-      n1: clampIndex(state.material.n1),
-      n2: clampIndex(state.material.n2),
-      kappa1: clampExtinction(state.material.kappa1),
-      kappa2: clampExtinction(state.material.kappa2),
+      n1,
+      kappa1,
+      // The coupling rule: while sameAsWave1 is set, wave 2's n/κ ARE wave 1's
+      // (OpticalMaterial keeps them tracking; a state saying otherwise is invalid).
+      n2: state.material.sameAsWave1 ? n1 : clampIndex(state.material.n2),
+      kappa2: state.material.sameAsWave1 ? kappa1 : clampExtinction(state.material.kappa2),
     },
     // EMANIM rule: the sum is only meaningful when both waves are on.
     sumEnabled: state.sumEnabled && state.wave1.enabled && state.wave2.enabled,
   };
+}
+
+/** Field-by-field equality of two scene states (all fields are primitives). */
+export function waveSceneStatesEqual(a: WaveSceneState, b: WaveSceneState): boolean {
+  const wavesEqual = (waveA: WaveState, waveB: WaveState): boolean =>
+    waveA.enabled === waveB.enabled &&
+    waveA.polarization === waveB.polarization &&
+    waveA.amplitude === waveB.amplitude &&
+    waveA.wavelengthNumber === waveB.wavelengthNumber &&
+    waveA.phaseDegrees === waveB.phaseDegrees &&
+    waveA.reversed === waveB.reversed;
+  return (
+    wavesEqual(a.wave1, b.wave1) &&
+    wavesEqual(a.wave2, b.wave2) &&
+    a.material.enabled === b.material.enabled &&
+    a.material.lengthNumber === b.material.lengthNumber &&
+    a.material.n1 === b.material.n1 &&
+    a.material.kappa1 === b.material.kappa1 &&
+    a.material.n2 === b.material.n2 &&
+    a.material.kappa2 === b.material.kappa2 &&
+    a.material.sameAsWave1 === b.material.sameAsWave1 &&
+    a.sumEnabled === b.sumEnabled
+  );
 }

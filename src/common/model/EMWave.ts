@@ -11,7 +11,7 @@
  * WaveEquations/FieldSampler.
  */
 
-import { BooleanProperty, NumberProperty, StringUnionProperty } from "scenerystack/axon";
+import { BooleanProperty, NumberProperty, StringUnionProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { AMPLITUDE_RANGE, PHASE_DEGREES_RANGE, WAVELENGTH_NUMBER_RANGE } from "../../LightPropagationConstants.js";
 import { type PolarizationType, PolarizationTypeValues } from "./PolarizationType.js";
 import type { WaveState } from "./WaveSceneState.js";
@@ -34,6 +34,13 @@ export class EMWave {
   /** Whether the wave travels toward −x (wave 1's "reverse direction" control). */
   public readonly reversedProperty: BooleanProperty;
 
+  /**
+   * Every Property of this wave that belongs to the serializable WaveState,
+   * kept here so the list cannot drift from the Properties it mirrors.
+   * WaveSceneModel concatenates these across its parts.
+   */
+  public readonly stateProperties: ReadonlyArray<TReadOnlyProperty<unknown>>;
+
   public constructor(initialState: WaveState) {
     this.enabledProperty = new BooleanProperty(initialState.enabled);
     this.polarizationProperty = new StringUnionProperty<PolarizationType>(initialState.polarization, {
@@ -46,11 +53,24 @@ export class EMWave {
     });
     this.phaseDegreesProperty = new NumberProperty(initialState.phaseDegrees, { range: PHASE_DEGREES_RANGE });
     this.reversedProperty = new BooleanProperty(initialState.reversed);
+    this.stateProperties = [
+      this.enabledProperty,
+      this.polarizationProperty,
+      this.amplitudeProperty,
+      this.wavelengthNumberProperty,
+      this.phaseDegreesProperty,
+      this.reversedProperty,
+    ];
   }
 
   /** The reduced wavelength ƛ = w/4. */
   public get reducedWavelength(): number {
     return this.wavelengthNumberProperty.value / 4;
+  }
+
+  /** The phase offset δ in radians (the Property holds degrees, the math wants radians). */
+  public get phaseRadians(): number {
+    return (this.phaseDegreesProperty.value * Math.PI) / 180;
   }
 
   public applyState(state: WaveState): void {

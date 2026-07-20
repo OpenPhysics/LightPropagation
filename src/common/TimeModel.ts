@@ -26,12 +26,15 @@
  *
  * ── View wiring ───────────────────────────────────────────────────────────────
  *
- *   SceneryStack ships a TimeControlNode that binds directly to isPlayingProperty:
+ *   SceneryStack ships a TimeControlNode that binds directly to isPlayingProperty.
+ *   TimeModel deliberately has no speed concept — if your model needs one (as
+ *   WaveSceneModel does with its timeSpeedProperty), own it there and pass it
+ *   to the TimeControlNode alongside the timer:
  *
  *   import { TimeControlNode } from "scenerystack/scenery-phet";
  *
  *   const timeControl = new TimeControlNode( model.timer.isPlayingProperty, {
- *     timeSpeedProperty: model.timer.timeSpeedProperty, // optional
+ *     timeSpeedProperty: model.timeSpeedProperty, // optional, owned by YOUR model
  *     playPauseStepButtonOptions: {
  *       stepForwardButtonOptions: {
  *         listener: () => model.step( 1 / 60 ),
@@ -51,16 +54,21 @@ export class TimeModel {
   /** Whether the simulation clock is running. Bind to TimeControlNode. */
   public readonly isPlayingProperty: BooleanProperty;
 
-  /** Elapsed simulation time in seconds. Resets to 0 on reset(). */
+  /**
+   * Elapsed simulation time, in whatever unit the caller feeds step() —
+   * seconds for most sims, EMANIM axis units in this one (WaveSceneModel
+   * pre-scales dt before delegating). Resets to 0 on reset().
+   */
   public readonly timeProperty: NumberProperty;
 
   public constructor(initiallyPlaying = false) {
     this.isPlayingProperty = new BooleanProperty(initiallyPlaying);
-    this.timeProperty = new NumberProperty(0, { units: "s" });
+    // No units metadata: the unit belongs to the caller (see timeProperty doc).
+    this.timeProperty = new NumberProperty(0);
   }
 
   /**
-   * Advance the simulation clock by dt seconds.
+   * Advance the simulation clock by dt (in the caller's time unit).
    * Call this from your model's step() method.
    */
   public step(dt: number): void {

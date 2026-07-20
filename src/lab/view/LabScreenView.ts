@@ -34,7 +34,7 @@ import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
 import type { LabModel } from "../model/LabModel.js";
-import { queryStringFromState } from "../model/labQueryParameterMapping.js";
+import { permalinkQueryString } from "../model/labQueryParameterMapping.js";
 import { LabPresetComboBox } from "./LabPresetComboBox.js";
 import { LabScreenSummaryContent } from "./LabScreenSummaryContent.js";
 
@@ -42,7 +42,6 @@ export class LabScreenView extends WaveScreenView {
   public constructor(model: LabModel, options?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getLabA11yStrings();
-    const common = strings.getCommonA11yStrings();
     const controls = strings.getControlsStrings();
     const presets = strings.getPresetsStrings();
 
@@ -69,7 +68,6 @@ export class LabScreenView extends WaveScreenView {
       titleColorProperty: LightPropagationColors.wave1ColorProperty,
       showEnabledCheckbox: true,
       showReverse: true,
-      accessibleNames: {},
     });
 
     const wave2Control = new WaveControlNode(scene.wave2, {
@@ -77,7 +75,6 @@ export class LabScreenView extends WaveScreenView {
       titleColorProperty: LightPropagationColors.wave2ColorProperty,
       showEnabledCheckbox: true,
       showPhase: true,
-      accessibleNames: {},
     });
 
     const sumCheckbox = new ThemedCheckbox(
@@ -93,14 +90,6 @@ export class LabScreenView extends WaveScreenView {
 
     const viewControl = new ViewControlNode(scene, this.camera, {
       showSumCurveCheckbox: true,
-      accessibleNames: {
-        presets: {
-          nice: common.cameraPresets.niceStringProperty,
-          side: common.cameraPresets.sideStringProperty,
-          front: common.cameraPresets.frontStringProperty,
-          back: common.cameraPresets.backStringProperty,
-        },
-      },
     });
 
     // "Copy link": puts a permalink for the current configuration on the
@@ -138,7 +127,9 @@ export class LabScreenView extends WaveScreenView {
       ),
       baseColor: LightPropagationColors.controlSurfaceColorProperty,
       listener: () => {
-        const query = queryStringFromState(scene.getState());
+        // Keep foreign query parameters (locale, screen selection, the
+        // absorption preference) so the link reproduces the whole session.
+        const query = permalinkQueryString(window.location.search, scene.getState());
         const url = `${window.location.origin}${window.location.pathname}${query ? `?${query}` : ""}`;
         if (navigator.clipboard) {
           navigator.clipboard.writeText(url).then(showLinkCopied, () => {

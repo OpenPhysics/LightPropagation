@@ -36,8 +36,11 @@ export type WaveControlNodeOptions = {
   titleStringProperty: TReadOnlyProperty<string>;
   /** Colors the title so the block visually matches its curve. */
   titleColorProperty: ProfileColorProperty;
-  /** a11y names, keyed per control; supply for every row that is shown. */
-  accessibleNames: {
+  /**
+   * a11y name overrides, keyed per control; rows default to their visible
+   * label scoped by the block title ("Amplitude, Wave 1").
+   */
+  accessibleNames?: {
     enabled?: TReadOnlyProperty<string>;
     polarization?: TReadOnlyProperty<string>;
     amplitude?: TReadOnlyProperty<string>;
@@ -60,6 +63,7 @@ export class WaveControlNode extends VBox {
 
   public constructor(wave: EMWave, providedOptions: WaveControlNodeOptions) {
     const options = {
+      accessibleNames: {},
       showEnabledCheckbox: false,
       polarizationChoices: PolarizationTypeValues,
       showAmplitude: true,

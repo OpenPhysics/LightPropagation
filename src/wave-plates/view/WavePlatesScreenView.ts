@@ -36,7 +36,6 @@ export class WavePlatesScreenView extends WaveScreenView {
   public constructor(model: WavePlatesModel, options?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getWavePlatesA11yStrings();
-    const common = strings.getCommonA11yStrings();
     const controls = strings.getControlsStrings();
     const plates = strings.getWavePlatesControlsStrings();
 
@@ -58,7 +57,6 @@ export class WavePlatesScreenView extends WaveScreenView {
       titleColorProperty: LightPropagationColors.wave1ColorProperty,
       polarizationChoices: null,
       showWavelength: false,
-      accessibleNames: {},
     });
 
     const horizontalControl = new WaveControlNode(scene.wave2, {
@@ -67,7 +65,6 @@ export class WavePlatesScreenView extends WaveScreenView {
       polarizationChoices: null,
       showWavelength: false,
       showPhase: true,
-      accessibleNames: {},
     });
 
     const sumCheckbox = new ThemedCheckbox(
@@ -153,14 +150,6 @@ export class WavePlatesScreenView extends WaveScreenView {
     const viewControl = new ViewControlNode(scene, this.camera, {
       showBFieldCheckbox: false,
       showCurveCheckboxes: false,
-      accessibleNames: {
-        presets: {
-          nice: common.cameraPresets.niceStringProperty,
-          side: common.cameraPresets.sideStringProperty,
-          front: common.cameraPresets.frontStringProperty,
-          back: common.cameraPresets.backStringProperty,
-        },
-      },
     });
 
     const waveColumn = new VBox({

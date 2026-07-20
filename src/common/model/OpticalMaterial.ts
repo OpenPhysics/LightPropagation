@@ -12,7 +12,7 @@
  * A reentrancy guard stops the copy itself from unchecking the box.
  */
 
-import { BooleanProperty, NumberProperty } from "scenerystack/axon";
+import { BooleanProperty, NumberProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import {
   EXTINCTION_RANGE,
   MATERIAL_LENGTH_RANGE,
@@ -43,6 +43,13 @@ export class OpticalMaterial {
   /** When true, wave 2's n/κ are locked to wave 1's. */
   public readonly sameAsWave1Property: BooleanProperty;
 
+  /**
+   * Every Property of the slab that belongs to the serializable MaterialState,
+   * kept here so the list cannot drift from the Properties it mirrors.
+   * WaveSceneModel concatenates these across its parts.
+   */
+  public readonly stateProperties: ReadonlyArray<TReadOnlyProperty<unknown>>;
+
   // True while this class itself writes n2/kappa2, so those writes don't
   // count as "manual edits" that uncheck sameAsWave1.
   private isCoupling = false;
@@ -58,6 +65,15 @@ export class OpticalMaterial {
     this.n2Property = new NumberProperty(initialState.n2, { range: REFRACTIVE_INDEX_RANGE });
     this.kappa2Property = new NumberProperty(initialState.kappa2, { range: EXTINCTION_RANGE });
     this.sameAsWave1Property = new BooleanProperty(initialState.sameAsWave1);
+    this.stateProperties = [
+      this.enabledProperty,
+      this.lengthNumberProperty,
+      this.n1Property,
+      this.kappa1Property,
+      this.n2Property,
+      this.kappa2Property,
+      this.sameAsWave1Property,
+    ];
 
     // Checking the box snaps wave 2's values to wave 1's.
     this.sameAsWave1Property.link((same) => {
@@ -101,8 +117,10 @@ export class OpticalMaterial {
     this.enabledProperty.value = state.enabled;
     this.lengthNumberProperty.value = state.lengthNumber;
     // Order matters: setting n2/kappa2 while sameAsWave1 is checked would
-    // uncheck it, so uncheck first, set values, then apply the stored flag
-    // (which re-copies wave 1's values if checked — consistent by definition).
+    // uncheck it, so uncheck first, set values, then apply the stored flag.
+    // Re-checking re-copies wave 1's values — a no-op, because
+    // clampWaveSceneState enforces n2 = n1 / kappa2 = kappa1 while
+    // sameAsWave1 is set, so every applied state is already consistent.
     this.sameAsWave1Property.value = false;
     this.n1Property.value = state.n1;
     this.kappa1Property.value = state.kappa1;
