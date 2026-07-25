@@ -10,12 +10,25 @@
 
 import { describe, expect, it } from "vitest";
 import { defaultWaveSceneState } from "../src/common/model/WaveSceneState.js";
-import { getLabPresetState } from "../src/lab/model/LabPresets.js";
+import { getLabPresetState, LabPresetKeys } from "../src/lab/model/LabPresets.js";
 import {
+  type LabQueryParameterValues,
   permalinkQueryString,
   queryStringFromState,
   stateFromQueryParameters,
 } from "../src/lab/model/labQueryParameterMapping.js";
+
+/** Parses a query string back into the provided-parameter record, as the sim's QueryStringMachine would. */
+function parseQuery(query: string): LabQueryParameterValues {
+  const values: Record<string, unknown> = {};
+  for (const part of query ? query.split("&") : []) {
+    const [key, raw] = part.split("=");
+    if (key !== undefined) {
+      values[key] = raw === "true" ? true : raw === "false" ? false : Number.isNaN(Number(raw)) ? raw : Number(raw);
+    }
+  }
+  return values as LabQueryParameterValues;
+}
 
 describe("stateFromQueryParameters", () => {
   it("returns the defaults and the vertical selection when nothing is provided", () => {
@@ -123,18 +136,21 @@ describe("queryStringFromState", () => {
     expect(permalinkQueryString("?preset=standingWave", defaultWaveSceneState())).toBe("");
   });
 
-  it("round-trips: parsing a serialized state reproduces it", () => {
-    for (const preset of ["standingWave", "circularDichroismBirefringence", "wavelengthRatio7to8"] as const) {
+  it("round-trips: parsing a serialized state reproduces it, preset selection included", () => {
+    // Every preset, because queryStringFromState() never emits `preset=`: the
+    // selection has to be recovered from the state itself, or a copied link
+    // reopens showing "Custom".
+    for (const preset of LabPresetKeys) {
       const original = getLabPresetState(preset);
-      const query = queryStringFromState(original);
-      // Parse the query string back into provided values.
-      const values: Record<string, unknown> = {};
-      for (const part of query.split("&")) {
-        const [key, raw] = part.split("=");
-        values[key] = raw === "true" ? true : raw === "false" ? false : Number.isNaN(Number(raw)) ? raw : Number(raw);
-      }
-      const { state } = stateFromQueryParameters(values);
+      const { state, selection } = stateFromQueryParameters(parseQuery(queryStringFromState(original)));
       expect(state, preset).toEqual(original);
+      expect(selection, preset).toBe(preset);
     }
+  });
+
+  it("a state that matches no preset still reopens as custom", () => {
+    const { state } = stateFromQueryParameters({ preset: "absorption", kappa1: 0.5 });
+    const { selection } = stateFromQueryParameters(parseQuery(queryStringFromState(state)));
+    expect(selection).toBe("custom");
   });
 });

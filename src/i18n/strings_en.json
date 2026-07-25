@@ -25,7 +25,7 @@
       "title": "Material",
       "polarizerTitle": "Polarizer (dichroic filter)",
       "wavePlateTitle": "Wave plate (birefringent slab)",
-      "insert": "Insert material",
+      "insertPattern": "Insert: {{material}}",
       "length": "Length",
       "refractiveIndex": "Refractive index n",
       "extinction": "Extinction coefficient κ",

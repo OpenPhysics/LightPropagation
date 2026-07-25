@@ -43,6 +43,9 @@ export class IntroScreenView extends WaveScreenView {
       children: [new LightPropagationPanel(waveControl), new LightPropagationPanel(viewControl)],
       spacing: 10,
       align: "right",
+      // Scales the whole control surface down if a locale's strings make it
+      // taller than the screen (the other three screens do the same).
+      maxHeight: this.layoutBounds.height - 2 * SCREEN_VIEW_MARGIN,
       right: this.layoutBounds.maxX - SCREEN_VIEW_MARGIN,
       top: this.layoutBounds.minY + SCREEN_VIEW_MARGIN,
     });

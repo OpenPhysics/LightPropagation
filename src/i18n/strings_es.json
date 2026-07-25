@@ -25,7 +25,7 @@
       "title": "Material",
       "polarizerTitle": "Polarizador (filtro dicroico)",
       "wavePlateTitle": "Lámina de onda (placa birrefringente)",
-      "insert": "Insertar material",
+      "insertPattern": "Insertar: {{material}}",
       "length": "Longitud",
       "refractiveIndex": "Índice de refracción n",
       "extinction": "Coeficiente de extinción κ",

@@ -27,10 +27,16 @@ import stringsFr from "./strings_fr.json";
 
 // ── Compile-time key-parity check ─────────────────────────────────────────────
 // TypeScript errors here if any locale file is missing a key from English.
+// Both directions per locale: `A satisfies typeof B` catches keys missing from
+// A, so each new locale needs its own pair of assertions here.
 // biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
 void (stringsEn satisfies typeof stringsFr);
 // biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
 void (stringsFr satisfies typeof stringsEn);
+// biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
+void (stringsEn satisfies typeof stringsEs);
+// biome-ignore lint/complexity/noVoid: intentional compile-time type assertion
+void (stringsEs satisfies typeof stringsEn);
 
 // ── Build the reactive string property tree ───────────────────────────────────
 const stringProperties = LocalizedString.getNestedStringProperties({

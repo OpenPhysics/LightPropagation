@@ -8,7 +8,7 @@
  */
 
 import { describe, expect, it } from "vitest";
-import { clampWaveSceneState, mergeWaveSceneState } from "../src/common/model/WaveSceneState.js";
+import { clampWaveSceneState, mergeWaveSceneState, waveSceneStatesEqual } from "../src/common/model/WaveSceneState.js";
 import { MATERIAL_UNIT_LENGTH } from "../src/LightPropagationConstants.js";
 import { getLabPresetState, LAB_PRESETS, LabPresetKeys } from "../src/lab/model/LabPresets.js";
 import { HALF_WAVE_PLATE, QUARTER_WAVE_PLATE } from "../src/wave-plates/model/WavePlatesModel.js";
@@ -24,6 +24,23 @@ describe("LabPresets", () => {
       const merged = mergeWaveSceneState(preset.state);
       expect(clampWaveSceneState(merged), preset.key).toEqual(merged);
     }
+  });
+
+  it("no two presets share a state", () => {
+    // The permalink mapping recovers the preset selection by matching the
+    // state against every preset (a copied link carries no `preset=`), so two
+    // presets with identical states would make that match ambiguous.
+    const duplicates: string[] = [];
+    for (let i = 0; i < LabPresetKeys.length; i++) {
+      for (let j = i + 1; j < LabPresetKeys.length; j++) {
+        const a = LabPresetKeys[i];
+        const b = LabPresetKeys[j];
+        if (a !== undefined && b !== undefined && waveSceneStatesEqual(getLabPresetState(a), getLabPresetState(b))) {
+          duplicates.push(`${a} == ${b}`);
+        }
+      }
+    }
+    expect(duplicates).toEqual([]);
   });
 
   it("single-wave and material presets never enable the sum", () => {
