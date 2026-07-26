@@ -11,7 +11,6 @@
  */
 
 import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
-import { Vector2 } from "scenerystack/dot";
 import { HBox, Text, VBox } from "scenerystack/scenery";
 import type { ScreenViewOptions } from "scenerystack/sim";
 import { RectangularPushButton } from "scenerystack/sun";
@@ -43,8 +42,8 @@ export class WavePlatesScreenView extends WaveScreenView {
       screenSummaryContent: new WavePlatesScreenSummaryContent(model),
       waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
       waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      // The two-column panel stack is wider than Intro's, so push the 3D scene further left.
-      viewOffset: new Vector2(-170, 0),
+      // Two columns of panels: the scene is framed to fit beside them.
+      panelLayout: "twoColumn",
       ...options,
     });
 
@@ -97,18 +96,16 @@ export class WavePlatesScreenView extends WaveScreenView {
       showExtinction: false,
     });
 
-    // Retardation readout: Δφ in degrees and in waves (Δφ/2π).
-    const retardationDegreesProperty = new DerivedProperty(
-      [model.retardationRadiansProperty],
-      (radians) => Math.round((radians * 1800) / Math.PI) / 10,
-    );
+    // Retardation readout: |Δφ| in degrees and in waves (|Δφ|/360°). Both come
+    // off the model's degrees Property so the panel and the accessible summary
+    // can never disagree; see WavePlatesModel for why it is a magnitude.
     const retardationWavesProperty = new DerivedProperty(
-      [model.retardationRadiansProperty],
-      (radians) => Math.round((radians / (2 * Math.PI)) * 1000) / 1000,
+      [model.retardationDegreesProperty],
+      (degrees) => Math.round((degrees / 360) * 1000) / 1000,
     );
     const retardationReadout = new Text(
       new PatternStringProperty(plates.retardationPatternStringProperty, {
-        degrees: retardationDegreesProperty,
+        degrees: model.retardationDegreesProperty,
         waves: retardationWavesProperty,
       }),
       { ...CONTROL_TEXT_OPTIONS, maxWidth: 180 },

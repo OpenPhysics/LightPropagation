@@ -43,6 +43,18 @@ export class WavePlatesModel implements TModel {
    */
   public readonly retardationRadiansProperty: TReadOnlyProperty<number>;
 
+  /**
+   * The retardation *magnitude* |Δφ| in degrees, rounded to 0.1°, for the
+   * screen's readouts (the panel and the accessible summary share this one
+   * Property rather than each rounding the radians themselves).
+   *
+   * The sign of Δφ only says which component is retarded, and the "Fast axis"
+   * readout states that in words; a plate is conventionally specified by how
+   * much retardation it introduces, so the numbers quote the magnitude rather
+   * than showing "−90°" whenever the horizontal index is the larger one.
+   */
+  public readonly retardationDegreesProperty: TReadOnlyProperty<number>;
+
   public constructor() {
     const material = this.scene.material;
     this.retardationRadiansProperty = DerivedProperty.deriveAny(
@@ -58,6 +70,10 @@ export class WavePlatesModel implements TModel {
           ? ((material.n1Property.value - material.n2Property.value) * material.length) /
             this.scene.wave1.reducedWavelength
           : 0,
+    );
+    this.retardationDegreesProperty = new DerivedProperty(
+      [this.retardationRadiansProperty],
+      (radians) => Math.round((Math.abs(radians) * 1800) / Math.PI) / 10,
     );
   }
 

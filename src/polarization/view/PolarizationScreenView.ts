@@ -11,7 +11,6 @@
  * shared wave settings / polarizer / view on the right.
  */
 
-import { Vector2 } from "scenerystack/dot";
 import { HBox, Text, VBox } from "scenerystack/scenery";
 import { NumberControl } from "scenerystack/scenery-phet";
 import type { ScreenViewOptions } from "scenerystack/sim";
@@ -38,8 +37,8 @@ export class PolarizationScreenView extends WaveScreenView {
       screenSummaryContent: new PolarizationScreenSummaryContent(model),
       waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
       waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      // The two-column panel stack is wider than Intro's, so push the 3D scene further left.
-      viewOffset: new Vector2(-170, 0),
+      // Two columns of panels: the scene is framed to fit beside them.
+      panelLayout: "twoColumn",
       ...options,
     });
 

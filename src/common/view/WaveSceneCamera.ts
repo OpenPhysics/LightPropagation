@@ -58,10 +58,15 @@ export class WaveSceneCamera {
   /** Emulates a parallel projection (fov 15° → 0.5° with a compensating dolly). */
   public readonly parallelProjectionProperty = new BooleanProperty(false);
 
-  public constructor(initialPreset: CameraPreset = "nice") {
+  /**
+   * @param initialPreset - starting orientation; reset() returns here
+   * @param initialRange - starting zoom; screens with wider control panels
+   *   start further out so the scene clears them (see CAMERA_RANGE_TWO_COLUMN)
+   */
+  public constructor(initialPreset: CameraPreset = "nice", initialRange: number = CAMERA_RANGE_DEFAULT) {
     this.yawProperty = new NumberProperty(presetYaw(initialPreset));
     this.pitchProperty = new NumberProperty(presetPitch(initialPreset));
-    this.rangeProperty = new NumberProperty(CAMERA_RANGE_DEFAULT, { range: CAMERA_RANGE });
+    this.rangeProperty = new NumberProperty(CAMERA_RANGE.constrainValue(initialRange), { range: CAMERA_RANGE });
   }
 
   public get fovDegrees(): number {

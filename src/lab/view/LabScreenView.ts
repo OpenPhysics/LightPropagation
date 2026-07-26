@@ -9,8 +9,7 @@
  * viewport, time control, Reset All and layout plumbing.
  */
 
-import { BooleanProperty, stepTimer } from "scenerystack/axon";
-import { Vector2 } from "scenerystack/dot";
+import { BooleanProperty, stepTimer, type TimerListener } from "scenerystack/axon";
 import { HBox, Text, VBox } from "scenerystack/scenery";
 import type { ScreenViewOptions } from "scenerystack/sim";
 import { RectangularPushButton } from "scenerystack/sun";
@@ -49,8 +48,8 @@ export class LabScreenView extends WaveScreenView {
       screenSummaryContent: new LabScreenSummaryContent(model),
       waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
       waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      // The two-column panel stack is wider than Intro's, so push the 3D scene further left.
-      viewOffset: new Vector2(-170, 0),
+      // Two columns of panels: the scene is framed to fit beside them.
+      panelLayout: "twoColumn",
       ...options,
     });
 
@@ -95,9 +94,17 @@ export class LabScreenView extends WaveScreenView {
     // "Copy link": puts a permalink for the current configuration on the
     // clipboard; the label flips to a brief confirmation on success only.
     const linkCopiedProperty = new BooleanProperty(false);
+    // Each copy restarts the two-second confirmation: without cancelling the
+    // pending timeout, a second click would have its label cleared early by
+    // the first click's timer.
+    let pendingConfirmationReset: TimerListener | null = null;
     const showLinkCopied = (): void => {
       linkCopiedProperty.value = true;
-      stepTimer.setTimeout(() => {
+      if (pendingConfirmationReset) {
+        stepTimer.clearTimeout(pendingConfirmationReset);
+      }
+      pendingConfirmationReset = stepTimer.setTimeout(() => {
+        pendingConfirmationReset = null;
         linkCopiedProperty.value = false;
       }, 2000);
     };

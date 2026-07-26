@@ -24,7 +24,7 @@ import { Dialog, ScreenView } from "scenerystack/sim";
 import { RectangularPushButton } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
-import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
+import { CAMERA_RANGE_DEFAULT, CAMERA_RANGE_TWO_COLUMN, SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
 import {
   FLAT_RECTANGULAR_BUTTON_OPTIONS,
   FLAT_RESET_ALL_BUTTON_OPTIONS,
@@ -36,8 +36,23 @@ import { WaveDisplayNode } from "./WaveDisplayNode.js";
 import { WaveSceneCamera } from "./WaveSceneCamera.js";
 import { WaveTimeControlNode } from "./WaveTimeControlNode.js";
 
-/** Shifts the 3D projection center left, clearing the right-hand panel stack. */
-const DEFAULT_VIEW_OFFSET = new Vector2(-130, 0);
+/**
+ * How much room a screen's control panels leave for the 3D scene.
+ *
+ * The three.js canvas spans the whole window and the Scenery panels are
+ * painted on top of it, so the scene only "clears" the controls if it is
+ * shifted left and zoomed out enough to fit in the strip beside them. Getting
+ * this wrong hides the right end of the propagation axis — where the
+ * transmitted wave and its E-vector arrow are, i.e. the part these screens
+ * exist to show.
+ */
+export type PanelLayout = "singleColumn" | "twoColumn";
+
+/** Projection shift (layout pixels) and starting zoom for each panel layout. */
+const SCENE_FRAMING: Record<PanelLayout, { viewOffset: Vector2; cameraRange: number }> = {
+  singleColumn: { viewOffset: new Vector2(-130, 0), cameraRange: CAMERA_RANGE_DEFAULT },
+  twoColumn: { viewOffset: new Vector2(-250, 0), cameraRange: CAMERA_RANGE_TWO_COLUMN },
+};
 
 /** What the base class needs from a screen model. */
 export type WaveScreenModel = {
@@ -48,8 +63,8 @@ export type WaveScreenModel = {
 export type WaveScreenViewOptions = ScreenViewOptions & {
   waveViewAccessibleNameProperty: TReadOnlyProperty<string>;
   waveViewAccessibleHelpTextProperty: TReadOnlyProperty<string>;
-  /** Overrides the leftward shift of the 3D scene; screens with wider panel stacks shift further. */
-  viewOffset?: Vector2;
+  /** Frames the 3D scene for the screen's panel stack (default: "singleColumn"). */
+  panelLayout?: PanelLayout;
 };
 
 export class WaveScreenView extends ScreenView {
@@ -61,7 +76,7 @@ export class WaveScreenView extends ScreenView {
   private contextLossDialog: Dialog | null = null;
 
   public constructor(model: WaveScreenModel, providedOptions: WaveScreenViewOptions) {
-    const { waveViewAccessibleNameProperty, waveViewAccessibleHelpTextProperty, viewOffset, ...screenViewOptions } =
+    const { waveViewAccessibleNameProperty, waveViewAccessibleHelpTextProperty, panelLayout, ...screenViewOptions } =
       providedOptions;
 
     super({
@@ -71,9 +86,10 @@ export class WaveScreenView extends ScreenView {
     });
 
     const controls = StringManager.getInstance().getControlsStrings();
-    const sceneOffset = viewOffset ?? DEFAULT_VIEW_OFFSET;
+    const framing = SCENE_FRAMING[panelLayout ?? "singleColumn"];
+    const sceneOffset = framing.viewOffset;
 
-    this.camera = new WaveSceneCamera();
+    this.camera = new WaveSceneCamera("nice", framing.cameraRange);
     this.waveDisplay = new WaveDisplayNode(model.scene, this.camera, this.layoutBounds, {
       viewOffset: sceneOffset,
       accessibleName: waveViewAccessibleNameProperty,

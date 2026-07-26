@@ -55,6 +55,11 @@ preallocated `Float32Array` buffers once per frame instead.
   replicates the `ThreeIsometricNode` plumbing (not barrel-exported by scenerystack), calls
   `sceneNode.render()` from `ScreenView.step()` after the model steps, and emulates parallel
   projection by narrowing FOV while dollying out (EMANIM trick).
+- **Scene framing is a per-screen choice.** The three.js canvas covers the whole window and the
+  Scenery panels are painted over it, so each screen declares a `panelLayout` (`"singleColumn"` |
+  `"twoColumn"`) and `WaveScreenView` picks the matching projection offset and starting camera
+  range from `SCENE_FRAMING`. Screens with two panel columns must start further out, or the right
+  end of the axis — the transmitted wave and its E-vector arrow — hides behind the controls.
 
 ## Common components
 
@@ -79,6 +84,9 @@ resources in `WaveDisplayNode` are created once per screen and reused.
 `npm test` (vitest):
 
 - `tests/WaveSceneModel.test.ts`, `tests/TimeModel.test.ts` — physics and time stepping
+- `tests/WavePlatesModel.test.ts` — retardation Δφ and the exact QWP/HWP presets
+- `tests/LabPresets.test.ts`, `tests/labQueryParameterMapping.test.ts` — presets and permalinks,
+  including the state→preset match that lets a copied link reopen with its preset selected
 - `tests/memory-leak.test.ts` — fleet-standard WeakRef/GC regression suite
 
 Gate: `npm run check && npm run lint && npm run build && npm test`.

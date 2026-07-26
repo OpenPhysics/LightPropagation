@@ -175,6 +175,6 @@
   "preferences": {
     "title": "Simulation",
     "wavelengthDependentAbsorption": "Wavelength-dependent absorption",
-    "wavelengthDependentAbsorptionDescription": "Absorb shorter wavelengths more strongly, using the physical Beer–Lambert law exp(−κ·Δx/ƛ). When off, absorption is wavelength-independent, exp(−κ·Δx/π), matching the original EMANIM app."
+    "wavelengthDependentAbsorptionDescription": "Absorb shorter wavelengths more strongly, using the physical Beer–Lambert law exp(−κ·Δx/ƛ). When off, absorption is wavelength-independent, exp(−κ·Δx/π), matching the original EMANIM app. Only affects screens where a material absorbs light: Polarization and Lab."
   }
 }
