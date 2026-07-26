@@ -25,7 +25,7 @@
       "title": "Matériau",
       "polarizerTitle": "Polariseur (filtre dichroïque)",
       "wavePlateTitle": "Lame d'onde (lame biréfringente)",
-      "insert": "Insérer le matériau",
+      "insertPattern": "Insérer : {{material}}",
       "length": "Longueur",
       "refractiveIndex": "Indice de réfraction n",
       "extinction": "Coefficient d'extinction κ",

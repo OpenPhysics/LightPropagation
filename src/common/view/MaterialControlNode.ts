@@ -12,7 +12,7 @@
  * of the scene.
  */
 
-import type { TReadOnlyProperty } from "scenerystack/axon";
+import { PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
 import { type Node, type ProfileColorProperty, Text, VBox } from "scenerystack/scenery";
 import { NumberControl, PhetFont } from "scenerystack/scenery-phet";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -64,6 +64,10 @@ export class MaterialControlNode extends VBox {
     const interactiveNodes: Node[] = [];
     const enabledProperty = material.enabledProperty;
 
+    // The accessible name embeds the visible title ("Insert: Polarizer
+    // (dichroic filter)") rather than a generic "Insert material", so it
+    // contains the visible label — WCAG 2.5.3 Label in Name, which speech-input
+    // users rely on to activate the control by the words they can see.
     const insertCheckbox = new ThemedCheckbox(
       material.enabledProperty,
       new Text(options.titleStringProperty, {
@@ -71,7 +75,11 @@ export class MaterialControlNode extends VBox {
         fill: LightPropagationColors.textColorProperty,
         maxWidth: 180,
       }),
-      { accessibleName: controls.material.insertStringProperty },
+      {
+        accessibleName: new PatternStringProperty(controls.material.insertPatternStringProperty, {
+          material: options.titleStringProperty,
+        }),
+      },
     );
     children.push(insertCheckbox);
     interactiveNodes.push(insertCheckbox);

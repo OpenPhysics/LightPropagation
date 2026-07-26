@@ -5,8 +5,9 @@
  * WaveSceneState — no QueryStringMachine dependency, so it is unit-testable.
  *
  *   - stateFromQueryParameters(): defaults → preset → explicit overrides,
- *     clamped/snapped to the slider grid. Any explicit override makes the
- *     preset selector show "custom".
+ *     clamped/snapped to the slider grid. The preset selector then shows
+ *     whichever preset the resulting state equals, or "custom" when it
+ *     matches none.
  *   - queryStringFromState(): the inverse for the "Copy link" button —
  *     clamps the state, then serializes only the parameters that differ from
  *     the defaults, so every emitted link parses back to exactly that state.
@@ -28,7 +29,7 @@ import {
   type WaveState,
   waveSceneStatesEqual,
 } from "../../common/model/WaveSceneState.js";
-import { getLabPresetState, type LabPresetKey, type LabPresetSelection } from "./LabPresets.js";
+import { getLabPresetState, type LabPresetKey, LabPresetKeys, type LabPresetSelection } from "./LabPresets.js";
 
 /** A wave query value is a polarization, or "off" to disable the wave. */
 export type WaveQueryValue = PolarizationType | "off";
@@ -83,11 +84,30 @@ export const LAB_QUERY_PARAMETER_KEYS = Object.keys(LAB_QUERY_PARAMETER_KEY_RECO
 >;
 
 /**
+ * The preset whose state equals `state`, or "custom" when none does.
+ *
+ * Matching on the state rather than on the `preset` parameter is what lets a
+ * "Copy link" permalink reopen with its preset selected: queryStringFromState()
+ * serializes state only, never `preset`, so a link for e.g. the Standing wave
+ * preset arrives with no `preset` parameter at all. Preset states are mutually
+ * distinct (LabPresets.test.ts asserts it), so the scan is unambiguous, and
+ * "vertical" — whose state IS the defaults — covers the no-parameter case.
+ */
+function matchingPresetSelection(state: WaveSceneState): LabPresetSelection {
+  for (const key of LabPresetKeys) {
+    if (waveSceneStatesEqual(state, getLabPresetState(key))) {
+      return key;
+    }
+  }
+  return "custom";
+}
+
+/**
  * Builds the Lab's initial state: defaults, then the preset (if any), then
  * each explicitly provided parameter, then range/grid clamping. The returned
- * selection is the preset while the resulting state still equals the preset's
- * (so no-op overrides like `?preset=absorption&kappa1=0.25` keep the preset
- * selected), else "custom".
+ * selection is whichever preset the resulting state equals (so no-op overrides
+ * like `?preset=absorption&kappa1=0.25` keep the preset selected, and a copied
+ * permalink recovers its preset), else "custom".
  */
 export function stateFromQueryParameters(values: LabQueryParameterValues): {
   state: WaveSceneState;
@@ -155,12 +175,7 @@ export function stateFromQueryParameters(values: LabQueryParameterValues): {
   });
 
   const clamped = clampWaveSceneState(state);
-  // "vertical" doubles as the no-preset candidate: its state IS the defaults.
-  const candidate = values.preset ?? "vertical";
-  return {
-    state: clamped,
-    selection: waveSceneStatesEqual(clamped, getLabPresetState(candidate)) ? candidate : "custom",
-  };
+  return { state: clamped, selection: matchingPresetSelection(clamped) };
 }
 
 /** A wave's query value: its polarization while on, "off" otherwise. */
