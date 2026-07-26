@@ -65,7 +65,8 @@ Fleet-standard Vitest layout (`happy-dom`, `tests/setup.ts`, `execArgv: ["--expo
 | `tests/WaveSceneModel.test.ts` | Shared core: state round-trip, reset, coupling rules |
 | `tests/WaveEquations.test.ts` | Pure field math |
 | `tests/FieldSampler.test.ts` | Grid sampling |
-| `tests/LabPresets.test.ts` | 20 EMANIM preset states |
+| `tests/LabPresets.test.ts` | 20 EMANIM preset states (and their mutual distinctness) |
+| `tests/WavePlatesModel.test.ts` | Retardation Δφ, its displayed magnitude, QWP/HWP presets |
 | `tests/labQueryParameterMapping.test.ts` | Permalink encode/decode |
 | `tests/memory-leak.test.ts` | WeakRef + `forceGC` dispose regression |
 

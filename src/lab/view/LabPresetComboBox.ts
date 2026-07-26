@@ -4,7 +4,8 @@
  * The Lab's "Show me" preset menu: the 20 EMANIM phenomena as a flat
  * ComboBox list with category-prefixed labels (sun's ComboBox has no
  * separators), e.g. "Interference: Standing wave", plus a "Custom" entry the
- * model selects automatically after any manual edit.
+ * model selects automatically after any manual edit — listed only while it is
+ * the current selection, since selecting it would do nothing.
  */
 
 import { PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
@@ -76,6 +77,14 @@ export class LabPresetComboBox extends ComboBox<LabPresetSelection> {
     super(model.presetProperty, items, listParent, {
       ...SIM_COMBO_BOX_OPTIONS,
       accessibleName: presets.titleStringProperty,
+    });
+
+    // "Custom" reports a state, it is not a phenomenon to choose: the model
+    // sets it after a manual edit, and picking it from the list would be a
+    // no-op. So it is listed only while it IS the selection — the ComboBox
+    // still needs the item, because its Property can hold that value.
+    model.presetProperty.link((preset) => {
+      this.setItemVisible("custom", preset === "custom");
     });
   }
 }

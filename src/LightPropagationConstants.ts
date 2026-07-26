@@ -106,9 +106,28 @@ export const CAMERA_FOV_DEGREES = 15;
  */
 export const CAMERA_PARALLEL_FOV_DEGREES = 0.5;
 
-/** Visible view range (zoom): camera distance = range / tan(fov/2). */
+/** Visible view range (zoom): camera distance = range / tan(fov/2). Larger = further out. */
 export const CAMERA_RANGE = new Range(6, 60);
+
+/**
+ * Starting zoom on a screen whose controls occupy a single panel column
+ * (Intro): the scene may use nearly the full window width.
+ */
 export const CAMERA_RANGE_DEFAULT = 20;
+
+/**
+ * Starting zoom on a screen whose controls occupy two panel columns
+ * (Polarization / Wave Plates / Lab). The 3D canvas spans the whole window and
+ * the panels are painted over it, so the scene must be small enough to fit in
+ * the strip left of them — otherwise the right end of the axis, where the
+ * transmitted wave and its E-vector live, is hidden behind the controls.
+ *
+ * Checked against the widest content (Polarization's two waves plus their sum,
+ * whose envelope reaches A·√2) at 1024×700, 1280×800 and 1600×900; the widest
+ * window is the tightest fit, because ScreenView scaling grows the panels
+ * faster than the extra window width it buys.
+ */
+export const CAMERA_RANGE_TWO_COLUMN = 29;
 
 /** Forward (look) direction of the default "Nice" camera preset, normalized. */
 export const NICE_VIEW_FORWARD = new Vector3(-0.669, -0.223, -0.708).normalized();
@@ -143,5 +162,6 @@ LightPropagationNamespace.register("LightPropagationConstants", {
   CAMERA_PARALLEL_FOV_DEGREES,
   CAMERA_RANGE,
   CAMERA_RANGE_DEFAULT,
+  CAMERA_RANGE_TWO_COLUMN,
   NICE_VIEW_FORWARD,
 });

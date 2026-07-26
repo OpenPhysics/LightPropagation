@@ -61,6 +61,10 @@ const MIN_ARROW_LENGTH = 0.05;
 const LEFT_END_INDEX = 0;
 const RIGHT_END_INDEX = WAVE_SAMPLE_COUNT - 1;
 
+/** Scratch for updateCamera's world position. Kept separate from the arrow
+ * scratch below so neither can be broken by reordering the per-frame updates. */
+const scratchCameraPosition = { x: 0, y: 0, z: 0 };
+
 export type WaveDisplayNodeOptions = {
   /** Layout-pixel shift of the projection center (negative x moves the scene left of the panels). */
   viewOffset?: Vector2;
@@ -108,7 +112,8 @@ class DynamicCurve {
   }
 }
 
-const scratchDirection = new THREE.Vector3();
+/** Scratch for EndArrow.update's direction vector (single-threaded, never escapes the call). */
+const scratchArrowDirection = new THREE.Vector3();
 
 /** A field-vector arrow anchored on the axis at one end of the domain. */
 class EndArrow {
@@ -139,8 +144,8 @@ class EndArrow {
     const visible = shouldShow && length > MIN_ARROW_LENGTH;
     this.arrow.visible = visible;
     if (visible) {
-      scratchDirection.set(0, eY, eZ).normalize();
-      this.arrow.setDirection(scratchDirection);
+      scratchArrowDirection.set(0, eY, eZ).normalize();
+      this.arrow.setDirection(scratchArrowDirection);
       this.arrow.setLength(length, Math.min(this.headLength, 0.6 * length), this.headWidth);
     }
   }
@@ -408,9 +413,8 @@ export class WaveDisplayNode extends Node {
       return;
     }
     const threeCamera = sceneNode.stage.threeCamera;
-    const position = scratchDirection; // reused as a scratch position
-    this.camera.getPosition(position);
-    threeCamera.position.set(position.x, position.y, position.z);
+    this.camera.getPosition(scratchCameraPosition);
+    threeCamera.position.set(scratchCameraPosition.x, scratchCameraPosition.y, scratchCameraPosition.z);
     threeCamera.up.set(0, 1, 0);
     threeCamera.lookAt(0, 0, 0);
 
