@@ -31,7 +31,7 @@ import type { Bounds2 } from "scenerystack/dot";
 import { Vector2 } from "scenerystack/dot";
 import { THREE, ThreeIsometricNode, ThreeUtils } from "scenerystack/mobius";
 import type { Color, ProfileColorProperty } from "scenerystack/scenery";
-import { DragListener, KeyboardListener, Node, Text } from "scenerystack/scenery";
+import { KeyboardListener, Node, RichDragListener, Text } from "scenerystack/scenery";
 import { PhetFont } from "scenerystack/scenery-phet";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import {
@@ -48,9 +48,6 @@ import type { WaveSceneCamera } from "./WaveSceneCamera.js";
 
 /** Radians of orbit per pixel of drag. */
 const ORBIT_SPEED = 0.005;
-
-/** Orbit step for one arrow-key press. */
-const KEYBOARD_ORBIT_STEP = (5 * Math.PI) / 180;
 
 /** Zoom factor for one wheel notch / key press. */
 const KEYBOARD_ZOOM_FACTOR = 1.1;
@@ -355,13 +352,13 @@ export class WaveDisplayNode extends Node {
     target.cursor = "pointer";
 
     let lastPoint: Vector2 | null = null;
-    target.addInputListener(
-      new DragListener({
-        press: (_event, listener) => {
-          lastPoint = listener.pointer.point.copy();
+    const orbitListener = new RichDragListener({
+      dragListenerOptions: {
+        press: (event) => {
+          lastPoint = event.pointer.point.copy();
         },
-        drag: (_event, listener) => {
-          const point = listener.pointer.point;
+        drag: (event) => {
+          const point = event.pointer.point;
           if (lastPoint) {
             this.camera.orbit(-(point.x - lastPoint.x) * ORBIT_SPEED, (point.y - lastPoint.y) * ORBIT_SPEED);
           }
@@ -370,8 +367,20 @@ export class WaveDisplayNode extends Node {
         release: () => {
           lastPoint = null;
         },
-      }),
-    );
+      },
+      keyboardDragListenerOptions: {
+        dragSpeed: 100,
+        shiftDragSpeed: 40,
+        drag: (_event, listener) => {
+          this.camera.orbit(-listener.modelDelta.x * ORBIT_SPEED, listener.modelDelta.y * ORBIT_SPEED);
+        },
+      },
+    });
+    // Pointer half goes on the 3D background event target; the keyboard half must go on `this`,
+    // which is the focusable Node. hotkeyManager only activates hotkeys for listeners on Nodes in
+    // the focus trail, and `target` is a descendant of this Node rather than an ancestor.
+    target.addInputListener(orbitListener.dragListener);
+    this.addInputListener(orbitListener.keyboardDragListener);
 
     target.addInputListener({
       wheel: (event) => {
@@ -382,20 +391,13 @@ export class WaveDisplayNode extends Node {
       },
     });
 
+    // Zoom keys only — orbit arrows are owned by RichDragListener above.
     this.addInputListener(
       new KeyboardListener({
-        keys: ["arrowLeft", "arrowRight", "arrowUp", "arrowDown", "plus", "equals", "minus"],
+        keys: ["plus", "equals", "minus"],
         fireOnHold: true,
         fire: (_event, keysPressed) => {
-          if (keysPressed === "arrowLeft") {
-            this.camera.orbit(KEYBOARD_ORBIT_STEP, 0);
-          } else if (keysPressed === "arrowRight") {
-            this.camera.orbit(-KEYBOARD_ORBIT_STEP, 0);
-          } else if (keysPressed === "arrowUp") {
-            this.camera.orbit(0, KEYBOARD_ORBIT_STEP);
-          } else if (keysPressed === "arrowDown") {
-            this.camera.orbit(0, -KEYBOARD_ORBIT_STEP);
-          } else if (keysPressed === "minus") {
+          if (keysPressed === "minus") {
             this.camera.zoomBy(KEYBOARD_ZOOM_FACTOR);
           } else {
             this.camera.zoomBy(1 / KEYBOARD_ZOOM_FACTOR);
