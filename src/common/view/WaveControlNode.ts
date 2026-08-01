@@ -9,6 +9,7 @@
  */
 
 import type { TReadOnlyProperty } from "scenerystack/axon";
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { type Node, type ProfileColorProperty, Text, VBox } from "scenerystack/scenery";
 import { NumberControl } from "scenerystack/scenery-phet";
 import { VerticalAquaRadioButtonGroup } from "scenerystack/sun";
@@ -31,7 +32,7 @@ import {
 import { scopedNameProperty } from "./summaryPhrases.js";
 import { ThemedCheckbox } from "./ThemedCheckbox.js";
 
-export type WaveControlNodeOptions = {
+export type WaveControlNodeSelfOptions = {
   /** The wave's title ("Wave 1" / "Wave 2"); tinted with the wave's color. */
   titleStringProperty: TReadOnlyProperty<string>;
   /** Colors the title so the block visually matches its curve. */
@@ -57,21 +58,25 @@ export type WaveControlNodeOptions = {
   showReverse?: boolean;
 };
 
+export type WaveControlNodeOptions = WaveControlNodeSelfOptions;
+
 export class WaveControlNode extends VBox {
   /** Interactive children in traversal order, for the screen's pdomOrder. */
   public readonly interactiveNodes: Node[] = [];
 
   public constructor(wave: EMWave, providedOptions: WaveControlNodeOptions) {
-    const options = {
-      accessibleNames: {},
-      showEnabledCheckbox: false,
-      polarizationChoices: PolarizationTypeValues,
-      showAmplitude: true,
-      showWavelength: true,
-      showPhase: false,
-      showReverse: false,
-      ...providedOptions,
-    };
+    const options = optionize<WaveControlNodeOptions, WaveControlNodeSelfOptions, EmptySelfOptions>()(
+      {
+        accessibleNames: {},
+        showEnabledCheckbox: false,
+        polarizationChoices: PolarizationTypeValues,
+        showAmplitude: true,
+        showWavelength: true,
+        showPhase: false,
+        showReverse: false,
+      },
+      providedOptions,
+    );
     const controls = StringManager.getInstance().getControlsStrings();
     const children: Node[] = [];
     const interactiveNodes: Node[] = [];

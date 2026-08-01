@@ -8,6 +8,7 @@
  */
 
 import type { TReadOnlyProperty } from "scenerystack/axon";
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { HBox, type Node, Text, VBox } from "scenerystack/scenery";
 import { RectangularPushButton } from "scenerystack/sun";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -18,7 +19,7 @@ import { CONTROL_FONT, CONTROL_TEXT_OPTIONS, CONTROL_TITLE_OPTIONS } from "./Lig
 import { ThemedCheckbox } from "./ThemedCheckbox.js";
 import type { CameraPreset, WaveSceneCamera } from "./WaveSceneCamera.js";
 
-export type ViewControlNodeOptions = {
+export type ViewControlNodeSelfOptions = {
   /**
    * a11y name overrides for the rows that are shown. Camera-preset buttons
    * default to the shared a11y.common.cameraPresets strings, every other row
@@ -37,18 +38,22 @@ export type ViewControlNodeOptions = {
   showSumCurveCheckbox?: boolean;
 };
 
+export type ViewControlNodeOptions = ViewControlNodeSelfOptions;
+
 export class ViewControlNode extends VBox {
   /** Interactive children in traversal order, for the screen's pdomOrder. */
   public readonly interactiveNodes: Node[] = [];
 
   public constructor(model: WaveSceneModel, camera: WaveSceneCamera, providedOptions?: ViewControlNodeOptions) {
-    const options = {
-      accessibleNames: {},
-      showBFieldCheckbox: true,
-      showCurveCheckboxes: true,
-      showSumCurveCheckbox: false,
-      ...providedOptions,
-    };
+    const options = optionize<ViewControlNodeOptions, ViewControlNodeSelfOptions, EmptySelfOptions>()(
+      {
+        accessibleNames: {},
+        showBFieldCheckbox: true,
+        showCurveCheckboxes: true,
+        showSumCurveCheckbox: false,
+      },
+      providedOptions,
+    );
     const strings = StringManager.getInstance();
     const controls = strings.getControlsStrings();
     const commonA11y = strings.getCommonA11yStrings();

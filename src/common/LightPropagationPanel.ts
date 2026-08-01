@@ -25,21 +25,26 @@
  *   const panel = new LightPropagationPanel(content, { fill: "transparent" });
  */
 
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import type { Node } from "scenerystack/scenery";
-import type { PanelOptions } from "scenerystack/sun";
-import { Panel } from "scenerystack/sun";
+import { Panel, type PanelOptions } from "scenerystack/sun";
 import LightPropagationColors from "../LightPropagationColors.js";
 import { PANEL_CORNER_RADIUS } from "../LightPropagationConstants.js";
 
+export type LightPropagationPanelOptions = PanelOptions;
+
 export class LightPropagationPanel extends Panel {
-  public constructor(content: Node, providedOptions?: PanelOptions) {
-    super(content, {
-      fill: LightPropagationColors.panelBackgroundColorProperty,
-      stroke: LightPropagationColors.panelBorderColorProperty,
-      cornerRadius: PANEL_CORNER_RADIUS,
-      xMargin: 12,
-      yMargin: 10,
-      ...providedOptions,
-    });
+  public constructor(content: Node, providedOptions?: LightPropagationPanelOptions) {
+    const options = optionize<LightPropagationPanelOptions, EmptySelfOptions, PanelOptions>()(
+      {
+        fill: LightPropagationColors.panelBackgroundColorProperty,
+        stroke: LightPropagationColors.panelBorderColorProperty,
+        cornerRadius: PANEL_CORNER_RADIUS,
+        xMargin: 12,
+        yMargin: 10,
+      },
+      providedOptions,
+    );
+    super(content, options);
   }
 }

@@ -16,7 +16,7 @@
 import type { TReadOnlyProperty } from "scenerystack/axon";
 import type { Bounds2 } from "scenerystack/dot";
 import { Vector2 } from "scenerystack/dot";
-import { getGlobal } from "scenerystack/phet-core";
+import { getGlobal, optionize } from "scenerystack/phet-core";
 import { Node, Text, VBox } from "scenerystack/scenery";
 import { PhetFont, ResetAllButton } from "scenerystack/scenery-phet";
 import type { ScreenViewOptions } from "scenerystack/sim";
@@ -60,12 +60,14 @@ export type WaveScreenModel = {
   reset(): void;
 };
 
-export type WaveScreenViewOptions = ScreenViewOptions & {
+export type WaveScreenViewSelfOptions = {
   waveViewAccessibleNameProperty: TReadOnlyProperty<string>;
   waveViewAccessibleHelpTextProperty: TReadOnlyProperty<string>;
   /** Frames the 3D scene for the screen's panel stack (default: "singleColumn"). */
   panelLayout?: PanelLayout;
 };
+
+export type WaveScreenViewOptions = WaveScreenViewSelfOptions & ScreenViewOptions;
 
 export class WaveScreenView extends ScreenView {
   protected readonly camera: WaveSceneCamera;
@@ -76,17 +78,21 @@ export class WaveScreenView extends ScreenView {
   private contextLossDialog: Dialog | null = null;
 
   public constructor(model: WaveScreenModel, providedOptions: WaveScreenViewOptions) {
-    const { waveViewAccessibleNameProperty, waveViewAccessibleHelpTextProperty, panelLayout, ...screenViewOptions } =
-      providedOptions;
+    const options = optionize<WaveScreenViewOptions, WaveScreenViewSelfOptions, ScreenViewOptions>()(
+      {
+        // Fitting is pointless here: most rendering happens in the three.js stage.
+        preventFit: true,
+        panelLayout: "singleColumn",
+      },
+      providedOptions,
+    );
 
-    super({
-      // Fitting is pointless here: most rendering happens in the three.js stage.
-      preventFit: true,
-      ...screenViewOptions,
-    });
+    super(options);
+
+    const { waveViewAccessibleNameProperty, waveViewAccessibleHelpTextProperty, panelLayout } = options;
 
     const controls = StringManager.getInstance().getControlsStrings();
-    const framing = SCENE_FRAMING[panelLayout ?? "singleColumn"];
+    const framing = SCENE_FRAMING[panelLayout];
     const sceneOffset = framing.viewOffset;
 
     this.camera = new WaveSceneCamera("nice", framing.cameraRange);

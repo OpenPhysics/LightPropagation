@@ -6,6 +6,7 @@
  * button appearance and readable speed-radio labels.
  */
 
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { TimeControlNode, type TimeControlNodeOptions } from "scenerystack/scenery-phet";
 import {
   FLAT_BUTTON_APPEARANCE_OPTIONS,
@@ -14,19 +15,24 @@ import {
 } from "../LightPropagationButtonOptions.js";
 import type { WaveSceneModel } from "../model/WaveSceneModel.js";
 
+export type WaveTimeControlNodeOptions = TimeControlNodeOptions;
+
 export class WaveTimeControlNode extends TimeControlNode {
-  public constructor(scene: WaveSceneModel, providedOptions?: TimeControlNodeOptions) {
-    super(scene.timer.isPlayingProperty, {
-      timeSpeedProperty: scene.timeSpeedProperty,
-      playPauseStepButtonOptions: {
-        ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
-        stepForwardButtonOptions: {
-          ...FLAT_BUTTON_APPEARANCE_OPTIONS,
-          listener: () => scene.stepFrame(),
+  public constructor(scene: WaveSceneModel, providedOptions?: WaveTimeControlNodeOptions) {
+    const options = optionize<WaveTimeControlNodeOptions, EmptySelfOptions, TimeControlNodeOptions>()(
+      {
+        timeSpeedProperty: scene.timeSpeedProperty,
+        playPauseStepButtonOptions: {
+          ...FLAT_PLAY_PAUSE_STEP_BUTTON_OPTIONS,
+          stepForwardButtonOptions: {
+            ...FLAT_BUTTON_APPEARANCE_OPTIONS,
+            listener: () => scene.stepFrame(),
+          },
         },
+        ...TIME_CONTROL_SPEED_RADIO_OPTIONS,
       },
-      ...TIME_CONTROL_SPEED_RADIO_OPTIONS,
-      ...providedOptions,
-    });
+      providedOptions,
+    );
+    super(scene.timer.isPlayingProperty, options);
   }
 }

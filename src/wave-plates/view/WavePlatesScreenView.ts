@@ -11,6 +11,7 @@
  */
 
 import { DerivedProperty, PatternStringProperty } from "scenerystack/axon";
+import { combineOptions, type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { HBox, Text, VBox } from "scenerystack/scenery";
 import type { ScreenViewOptions } from "scenerystack/sim";
 import { RectangularPushButton } from "scenerystack/sun";
@@ -24,7 +25,7 @@ import { MaterialControlNode } from "../../common/view/MaterialControlNode.js";
 import { ThemedCheckbox } from "../../common/view/ThemedCheckbox.js";
 import { ViewControlNode } from "../../common/view/ViewControlNode.js";
 import { WaveControlNode } from "../../common/view/WaveControlNode.js";
-import { WaveScreenView } from "../../common/view/WaveScreenView.js";
+import { WaveScreenView, type WaveScreenViewOptions } from "../../common/view/WaveScreenView.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
@@ -32,20 +33,28 @@ import type { WavePlatesModel } from "../model/WavePlatesModel.js";
 import { WavePlatesScreenSummaryContent } from "./WavePlatesScreenSummaryContent.js";
 
 export class WavePlatesScreenView extends WaveScreenView {
-  public constructor(model: WavePlatesModel, options?: ScreenViewOptions) {
+  public constructor(model: WavePlatesModel, providedOptions?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getWavePlatesA11yStrings();
     const controls = strings.getControlsStrings();
     const plates = strings.getWavePlatesControlsStrings();
 
-    super(model, {
-      screenSummaryContent: new WavePlatesScreenSummaryContent(model),
-      waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
-      waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      // Two columns of panels: the scene is framed to fit beside them.
-      panelLayout: "twoColumn",
-      ...options,
-    });
+    const options = combineOptions<WaveScreenViewOptions>(
+      {
+        waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
+        waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
+        // Two columns of panels: the scene is framed to fit beside them.
+        panelLayout: "twoColumn",
+      },
+      optionize<ScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
+        {
+          screenSummaryContent: new WavePlatesScreenSummaryContent(model),
+        },
+        providedOptions,
+      ),
+    );
+
+    super(model, options);
 
     const scene = model.scene;
 

@@ -11,6 +11,7 @@
  * shared wave settings / polarizer / view on the right.
  */
 
+import { combineOptions, type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { HBox, Text, VBox } from "scenerystack/scenery";
 import { NumberControl } from "scenerystack/scenery-phet";
 import type { ScreenViewOptions } from "scenerystack/sim";
@@ -20,7 +21,7 @@ import { MaterialControlNode } from "../../common/view/MaterialControlNode.js";
 import { ThemedCheckbox } from "../../common/view/ThemedCheckbox.js";
 import { ViewControlNode } from "../../common/view/ViewControlNode.js";
 import { WaveControlNode } from "../../common/view/WaveControlNode.js";
-import { WaveScreenView } from "../../common/view/WaveScreenView.js";
+import { WaveScreenView, type WaveScreenViewOptions } from "../../common/view/WaveScreenView.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import { SCREEN_VIEW_MARGIN, WAVELENGTH_NUMBER_RANGE } from "../../LightPropagationConstants.js";
@@ -28,19 +29,27 @@ import type { PolarizationModel } from "../model/PolarizationModel.js";
 import { PolarizationScreenSummaryContent } from "./PolarizationScreenSummaryContent.js";
 
 export class PolarizationScreenView extends WaveScreenView {
-  public constructor(model: PolarizationModel, options?: ScreenViewOptions) {
+  public constructor(model: PolarizationModel, providedOptions?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getPolarizationA11yStrings();
     const controls = strings.getControlsStrings();
 
-    super(model, {
-      screenSummaryContent: new PolarizationScreenSummaryContent(model),
-      waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
-      waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      // Two columns of panels: the scene is framed to fit beside them.
-      panelLayout: "twoColumn",
-      ...options,
-    });
+    const options = combineOptions<WaveScreenViewOptions>(
+      {
+        waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
+        waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
+        // Two columns of panels: the scene is framed to fit beside them.
+        panelLayout: "twoColumn",
+      },
+      optionize<ScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
+        {
+          screenSummaryContent: new PolarizationScreenSummaryContent(model),
+        },
+        providedOptions,
+      ),
+    );
+
+    super(model, options);
 
     const scene = model.scene;
 

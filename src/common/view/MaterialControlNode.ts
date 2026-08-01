@@ -13,6 +13,7 @@
  */
 
 import { PatternStringProperty, type TReadOnlyProperty } from "scenerystack/axon";
+import { type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { type Node, type ProfileColorProperty, Text, VBox } from "scenerystack/scenery";
 import { NumberControl, PhetFont } from "scenerystack/scenery-phet";
 import { StringManager } from "../../i18n/StringManager.js";
@@ -34,7 +35,7 @@ import { ThemedCheckbox } from "./ThemedCheckbox.js";
 
 const WAVE_LABEL_FONT = new PhetFont({ size: 13, weight: "bold" });
 
-export type MaterialControlNodeOptions = {
+export type MaterialControlNodeSelfOptions = {
   /** Panel title used as the insert checkbox's label (default: "Material"). */
   titleStringProperty?: TReadOnlyProperty<string>;
   /** Per-wave subtitle labels (default: "Wave 1" / "Wave 2"). */
@@ -45,21 +46,25 @@ export type MaterialControlNodeOptions = {
   showSameAsWave1?: boolean;
 };
 
+export type MaterialControlNodeOptions = MaterialControlNodeSelfOptions;
+
 export class MaterialControlNode extends VBox {
   /** Interactive children in traversal order, for the screen's pdomOrder. */
   public readonly interactiveNodes: Node[] = [];
 
   public constructor(material: OpticalMaterial, providedOptions?: MaterialControlNodeOptions) {
     const controls = StringManager.getInstance().getControlsStrings();
-    const options = {
-      titleStringProperty: controls.material.titleStringProperty,
-      wave1LabelProperty: controls.wave1StringProperty,
-      wave2LabelProperty: controls.wave2StringProperty,
-      showRefractiveIndex: true,
-      showExtinction: true,
-      showSameAsWave1: false,
-      ...providedOptions,
-    };
+    const options = optionize<MaterialControlNodeOptions, MaterialControlNodeSelfOptions, EmptySelfOptions>()(
+      {
+        titleStringProperty: controls.material.titleStringProperty,
+        wave1LabelProperty: controls.wave1StringProperty,
+        wave2LabelProperty: controls.wave2StringProperty,
+        showRefractiveIndex: true,
+        showExtinction: true,
+        showSameAsWave1: false,
+      },
+      providedOptions,
+    );
     const children: Node[] = [];
     const interactiveNodes: Node[] = [];
     const enabledProperty = material.enabledProperty;

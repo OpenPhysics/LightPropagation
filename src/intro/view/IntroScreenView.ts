@@ -7,12 +7,13 @@
  * layout plumbing.
  */
 
+import { combineOptions, type EmptySelfOptions, optionize } from "scenerystack/phet-core";
 import { VBox } from "scenerystack/scenery";
 import type { ScreenViewOptions } from "scenerystack/sim";
 import { LightPropagationPanel } from "../../common/LightPropagationPanel.js";
 import { ViewControlNode } from "../../common/view/ViewControlNode.js";
 import { WaveControlNode } from "../../common/view/WaveControlNode.js";
-import { WaveScreenView } from "../../common/view/WaveScreenView.js";
+import { WaveScreenView, type WaveScreenViewOptions } from "../../common/view/WaveScreenView.js";
 import { StringManager } from "../../i18n/StringManager.js";
 import LightPropagationColors from "../../LightPropagationColors.js";
 import { SCREEN_VIEW_MARGIN } from "../../LightPropagationConstants.js";
@@ -20,17 +21,25 @@ import type { IntroModel } from "../model/IntroModel.js";
 import { IntroScreenSummaryContent } from "./IntroScreenSummaryContent.js";
 
 export class IntroScreenView extends WaveScreenView {
-  public constructor(model: IntroModel, options?: ScreenViewOptions) {
+  public constructor(model: IntroModel, providedOptions?: ScreenViewOptions) {
     const strings = StringManager.getInstance();
     const a11y = strings.getIntroA11yStrings();
     const controls = strings.getControlsStrings();
 
-    super(model, {
-      screenSummaryContent: new IntroScreenSummaryContent(model),
-      waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
-      waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
-      ...options,
-    });
+    const options = combineOptions<WaveScreenViewOptions>(
+      {
+        waveViewAccessibleNameProperty: a11y.waveView.accessibleNameStringProperty,
+        waveViewAccessibleHelpTextProperty: a11y.waveView.accessibleHelpTextStringProperty,
+      },
+      optionize<ScreenViewOptions, EmptySelfOptions, ScreenViewOptions>()(
+        {
+          screenSummaryContent: new IntroScreenSummaryContent(model),
+        },
+        providedOptions,
+      ),
+    );
+
+    super(model, options);
 
     const waveControl = new WaveControlNode(model.scene.wave1, {
       titleStringProperty: controls.wave1StringProperty,
