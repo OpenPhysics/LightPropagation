@@ -1,5 +1,7 @@
 # Light Propagation
 
+[![CI](https://github.com/OpenPhysics/LightPropagation/actions/workflows/ci.yml/badge.svg)](https://github.com/OpenPhysics/LightPropagation/actions/workflows/ci.yml)
+
 An interactive simulation of how light propagates through polarizers and wave plates, built with
 [SceneryStack](https://scenerystack.org/), Vite 8, TypeScript 7, and Biome 2.
 
